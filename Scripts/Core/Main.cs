@@ -1,0 +1,91 @@
+using Godot;
+
+public partial class Main : Node2D
+{
+    private static readonly Vector2 WorldSize = new(1600, 1000);
+
+    public override void _Ready()
+    {
+        CreateWorldBoundaries();
+        QueueRedraw();
+        GD.Print("Brighthollow Milestone 0.1.0 started successfully.");
+    }
+
+    public override void _Draw()
+    {
+        // Base grass field.
+        DrawRect(new Rect2(Vector2.Zero, WorldSize), new Color("#77b85a"));
+
+        // A simple dirt road through the test map.
+        DrawRect(new Rect2(0, 430, WorldSize.X, 140), new Color("#d6b66f"));
+        DrawRect(new Rect2(705, 0, 190, WorldSize.Y), new Color("#d6b66f"));
+
+        // Pond.
+        DrawRect(new Rect2(1040, 120, 360, 230), new Color("#3d91c9"));
+        DrawRect(new Rect2(1060, 140, 320, 190), new Color("#58add8"));
+
+        // Starting-town buildings represented with original placeholder shapes.
+        DrawBuilding(new Rect2(170, 150, 220, 150), new Color("#c85f4b"), "HOME");
+        DrawBuilding(new Rect2(470, 120, 260, 180), new Color("#4a83b8"), "LAB");
+        DrawBuilding(new Rect2(180, 650, 250, 170), new Color("#d8983d"), "SHOP");
+        DrawBuilding(new Rect2(500, 640, 300, 190), new Color("#cf5f6f"), "CLINIC");
+
+        // Trees and rocks establish the visual language for later maps.
+        for (int x = 40; x < 1560; x += 80)
+        {
+            DrawTree(new Vector2(x, 55));
+            DrawTree(new Vector2(x, 930));
+        }
+
+        for (int y = 130; y < 900; y += 90)
+        {
+            DrawTree(new Vector2(55, y));
+            DrawTree(new Vector2(1530, y));
+        }
+    }
+
+    private void DrawBuilding(Rect2 body, Color wallColor, string label)
+    {
+        Rect2 roof = new(body.Position - new Vector2(12, 35), body.Size + new Vector2(24, 45));
+        DrawRect(roof, wallColor.Darkened(0.25f));
+        DrawRect(body, wallColor);
+        DrawRect(new Rect2(body.Position + new Vector2(body.Size.X / 2 - 24, body.Size.Y - 55), new Vector2(48, 55)), new Color("#5c3c2a"));
+        DrawString(ThemeDB.FallbackFont, body.Position + new Vector2(18, 34), label, HorizontalAlignment.Left, -1, 24, Colors.White);
+    }
+
+    private void DrawTree(Vector2 position)
+    {
+        DrawRect(new Rect2(position + new Vector2(-7, 13), new Vector2(14, 25)), new Color("#76502e"));
+        DrawCircle(position, 27, new Color("#2e7b45"));
+        DrawCircle(position + new Vector2(-12, 7), 18, new Color("#3d9554"));
+    }
+
+    private void CreateWorldBoundaries()
+    {
+        CreateBoundary(new Vector2(WorldSize.X / 2, -16), new Vector2(WorldSize.X, 32));
+        CreateBoundary(new Vector2(WorldSize.X / 2, WorldSize.Y + 16), new Vector2(WorldSize.X, 32));
+        CreateBoundary(new Vector2(-16, WorldSize.Y / 2), new Vector2(32, WorldSize.Y));
+        CreateBoundary(new Vector2(WorldSize.X + 16, WorldSize.Y / 2), new Vector2(32, WorldSize.Y));
+
+        // Building collision boxes.
+        CreateBoundary(new Vector2(280, 225), new Vector2(220, 150));
+        CreateBoundary(new Vector2(600, 210), new Vector2(260, 180));
+        CreateBoundary(new Vector2(305, 735), new Vector2(250, 170));
+        CreateBoundary(new Vector2(650, 735), new Vector2(300, 190));
+
+        // Pond collision.
+        CreateBoundary(new Vector2(1220, 235), new Vector2(360, 230));
+    }
+
+    private void CreateBoundary(Vector2 position, Vector2 size)
+    {
+        StaticBody2D body = new();
+        CollisionShape2D collision = new();
+        RectangleShape2D shape = new() { Size = size };
+
+        collision.Shape = shape;
+        body.Position = position;
+        body.AddChild(collision);
+        AddChild(body);
+    }
+}
