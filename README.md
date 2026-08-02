@@ -35,3 +35,8 @@ The editor never overwrites the bundled `Data/Creatures/creatures.json` file. It
 - Move: WASD or arrow keys
 - Pause menu: Esc
 - Interact/advance dialogue: E or Space
+
+
+## v0.3.1 hotfix
+
+The creature editor now scrolls vertically while keeping the Save, Reset, and Close buttons pinned at the bottom of the screen.

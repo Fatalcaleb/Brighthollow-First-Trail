@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.3.1
+
+- Fixed the creature editor footer being clipped at the 960x540 internal resolution.
+- Added vertical scrolling to the editor fields.
+- Kept Save Custom Override, Reset to Bundled Data, and Close Editor visible.
+
+
 ## 0.2.0 — Pause, Save, and Interaction
 
 - Added an Esc pause menu.

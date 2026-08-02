@@ -252,9 +252,22 @@ public partial class CreatureEditor : CanvasLayer
         toolbar.AddChild(CreateButton("Duplicate", DuplicateCreature, 110));
         toolbar.AddChild(CreateButton("Delete", DeleteCreature, 90));
 
-        HBoxContainer columns = new() { SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+        ScrollContainer editorScroll = new()
+        {
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill,
+            HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+            VerticalScrollMode = ScrollContainer.ScrollMode.Auto
+        };
+        page.AddChild(editorScroll);
+
+        HBoxContainer columns = new()
+        {
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill,
+            CustomMinimumSize = new Vector2(0, 410)
+        };
         columns.AddThemeConstantOverride("separation", 18);
-        page.AddChild(columns);
+        editorScroll.AddChild(columns);
 
         VBoxContainer left = CreateColumn();
         VBoxContainer right = CreateColumn();
@@ -283,7 +296,7 @@ public partial class CreatureEditor : CanvasLayer
         right.AddChild(new Label { Text = "Encyclopedia Description" });
         _description = new TextEdit
         {
-            CustomMinimumSize = new Vector2(0, 130),
+            CustomMinimumSize = new Vector2(0, 100),
             SizeFlagsVertical = Control.SizeFlags.ExpandFill,
             WrapMode = TextEdit.LineWrappingMode.Boundary
         };
