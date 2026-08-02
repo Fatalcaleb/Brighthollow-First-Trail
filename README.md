@@ -1,34 +1,36 @@
 # Brighthollow: First Trail
 
-An original, private, single-player monster-catching RPG being developed with **Godot 4.7.1 .NET** and **C#**.
+Original single-player monster-catching RPG built with **Godot 4.7.1 .NET** and **C#**.
 
-## Milestone 0.1.0 — Foundation
+## Milestone 0.2.0 — Pause, Save, and Interaction
 
-This first milestone intentionally contains only the pieces needed to prove that the project launches correctly:
+This milestone adds the first real RPG interface systems:
 
-- C# project configured for Godot 4.7.1 and .NET 8
-- Runnable main scene
-- Four-direction movement
-- Smooth camera follow
-- Collision against world borders, buildings, and water
-- Original placeholder test-town graphics drawn by code
-- Git-friendly repository layout
+- Pause menu opened with **Esc**
+- Save and load from slot 1
+- Player position and play time persistence
+- NPC interaction using **E** or **Space**
+- Dialogue box that pauses the game
+- Resume, settings notice, and quit controls
 
 ## Requirements
 
-- Godot 4.7.1 **.NET/Mono** edition
+- Godot 4.7.1 .NET/Mono edition
 - .NET 8 SDK
-
-## Running
-
-1. Open `project.godot` in Godot 4.7.1 .NET.
-2. Choose **Build > Build Project**.
-3. Press **F6** or **F5**.
 
 ## Controls
 
-- Move: `WASD` or arrow keys
+- Move: WASD or arrow keys
+- Pause menu: Esc
+- Interact/advance dialogue: E or Space
 
-## Development rule
+## Testing save/load
 
-The `main` branch should always contain a runnable milestone. New systems should be developed and tested before being merged.
+1. Walk somewhere memorable.
+2. Press Esc.
+3. Choose **Save Game**.
+4. Resume and walk elsewhere.
+5. Press Esc and choose **Load Game**.
+6. The player should return to the saved position.
+
+Godot stores the save in its per-user application data folder as `save_slot_1.json`.

@@ -1,18 +1,17 @@
 # Changelog
 
-## 0.1.0 — 2026-08-02
+## 0.2.0 — Pause, Save, and Interaction
 
-### Added
+- Added an Esc pause menu.
+- Added slot-one JSON save and load.
+- Save data includes player position, location, play time, version, and timestamp.
+- Added Mara, the first interactable NPC.
+- Added a dialogue box and game pausing during dialogue.
+- Added menu controls for resume, settings notice, and quitting.
 
-- Clean Godot 4.7.1 .NET project
-- C# main scene and player controller
-- Four-direction keyboard movement
-- Smooth player-following camera
-- Collision boundaries for the test map
-- Original code-drawn town placeholders
-- Repository README, roadmap, and `.gitignore`
+## 0.1.0 — Foundation
 
-### Removed
-
-- Broken autoload configuration from the earlier experimental prototype
-- Unverified battle and save systems that prevented the project from starting
+- Initial Godot 4.7.1 .NET project.
+- Four-direction player movement.
+- Smooth camera follow.
+- Prototype Mossmere map and collisions.
