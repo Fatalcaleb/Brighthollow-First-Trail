@@ -157,12 +157,12 @@ public partial class PauseMenu : CanvasLayer
 
         PanelContainer panel = new();
         panel.SetAnchorsPreset(Control.LayoutPreset.Center);
-        panel.Position = new Vector2(-180, -260);
-        panel.Size = new Vector2(360, 520);
+        panel.Position = new Vector2(-190, -245);
+        panel.Size = new Vector2(380, 490);
         _menuRoot.AddChild(panel);
 
         VBoxContainer box = new();
-        box.AddThemeConstantOverride("separation", 12);
+        box.AddThemeConstantOverride("separation", 7);
         panel.AddChild(box);
 
         Label title = new()
@@ -170,7 +170,7 @@ public partial class PauseMenu : CanvasLayer
             Text = "BRIGHTHOLLOW",
             HorizontalAlignment = HorizontalAlignment.Center
         };
-        title.AddThemeFontSizeOverride("font_size", 30);
+        title.AddThemeFontSizeOverride("font_size", 28);
         box.AddChild(title);
 
         Label subtitle = new()
@@ -178,7 +178,7 @@ public partial class PauseMenu : CanvasLayer
             Text = "Mossmere — Pause Menu",
             HorizontalAlignment = HorizontalAlignment.Center
         };
-        subtitle.AddThemeFontSizeOverride("font_size", 17);
+        subtitle.AddThemeFontSizeOverride("font_size", 16);
         box.AddChild(subtitle);
 
         box.AddChild(CreateButton("Resume", ResumeGame));
@@ -194,13 +194,14 @@ public partial class PauseMenu : CanvasLayer
             Text = "",
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
             HorizontalAlignment = HorizontalAlignment.Center,
-            CustomMinimumSize = new Vector2(320, 60)
+            CustomMinimumSize = new Vector2(330, 36)
         };
         box.AddChild(_statusLabel);
 
         Label help = new()
         {
             Text = "Esc closes the menu",
+            CustomMinimumSize = new Vector2(330, 24),
             HorizontalAlignment = HorizontalAlignment.Center
         };
         box.AddChild(help);
@@ -238,9 +239,9 @@ public partial class PauseMenu : CanvasLayer
         Button button = new()
         {
             Text = text,
-            CustomMinimumSize = new Vector2(320, 48)
+            CustomMinimumSize = new Vector2(330, 40)
         };
-        button.AddThemeFontSizeOverride("font_size", 20);
+        button.AddThemeFontSizeOverride("font_size", 18);
         button.Pressed += action;
         return button;
     }

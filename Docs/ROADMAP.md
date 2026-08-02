@@ -43,3 +43,13 @@
 - Save and load
 
 Later milestones will add trainer battles, the rival, Echo Cave, Arena One, weather, double battles, and story systems.
+
+## Creature Editor — Planned Expansion
+
+- Creature randomizer with configurable elemental categories, stat ranges, rarity, abilities, and personality traits.
+- Evolution-family generator supporting one-, two-, and three-stage lines plus creatures that do not evolve.
+- Validation rules that keep generated evolution lines internally consistent.
+- Sprite assignment by file picker/import.
+- Optional original sprite generation based on the creature description, followed by manual approval before saving.
+- Front, back, icon, alternate-color, and future animation sprite slots.
+- Preview panel and missing-asset warnings.

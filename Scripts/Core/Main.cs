@@ -16,7 +16,7 @@ public partial class Main : Node2D
         QueueRedraw();
         var creatures = CreatureDatabase.LoadAll();
         GD.Print($"Loaded {creatures.Count} creature definitions.");
-        GD.Print("Brighthollow Milestone 0.3.0 started successfully.");
+        GD.Print("Brighthollow Milestone 0.3.2 started successfully.");
     }
 
     public override void _Input(InputEvent @event)

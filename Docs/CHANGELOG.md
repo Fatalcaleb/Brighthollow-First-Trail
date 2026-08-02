@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.2 - Pause Menu Layout Hotfix
+
+- Reduced pause-menu spacing and button height so the full menu fits at the project's 720p internal resolution.
+- Kept the status and help text visible instead of allowing them to spill below the screen.
+- Recorded future creature-editor plans for procedural creature families and sprite workflows.
+
 ## v0.3.1
 
 - Fixed the creature editor footer being clipped at the 960x540 internal resolution.
