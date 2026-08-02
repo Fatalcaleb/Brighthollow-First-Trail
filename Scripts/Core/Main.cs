@@ -14,7 +14,9 @@ public partial class Main : Node2D
         _interface = GetNode<PauseMenu>("Interface");
         CreateWorldBoundaries();
         QueueRedraw();
-        GD.Print("Brighthollow Milestone 0.2.1 started successfully.");
+        var creatures = CreatureDatabase.LoadAll();
+        GD.Print($"Loaded {creatures.Count} creature definitions.");
+        GD.Print("Brighthollow Milestone 0.3.0 started successfully.");
     }
 
     public override void _Input(InputEvent @event)

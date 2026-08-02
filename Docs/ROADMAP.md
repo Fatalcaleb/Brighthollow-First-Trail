@@ -20,11 +20,11 @@
 
 ## 0.3.0 — Creature data
 
-- JSON creature database
-- Three starter creatures
-- Five wild creatures
-- Stats, types, levels, and moves
-- Developer database viewer
+- [x] JSON creature database
+- [x] Three starter creatures
+- [x] Five wild creatures
+- [x] Base stats, types, abilities, descriptions, and move references
+- [x] Built-in creature editor and validation
 
 ## 0.4.0 — First battles
 

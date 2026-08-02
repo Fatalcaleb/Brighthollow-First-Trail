@@ -8,6 +8,7 @@ public partial class PauseMenu : CanvasLayer
     private Label _dialogueLabel = null!;
     private Button _loadButton = null!;
     private CharacterBody2D _player = null!;
+    private CreatureEditor _creatureEditor = null!;
     private double _playTimeSeconds;
     private bool _dialogueOpen;
     private ulong _dialogueOpenedFrame;
@@ -16,6 +17,7 @@ public partial class PauseMenu : CanvasLayer
     {
         ProcessMode = ProcessModeEnum.Always;
         _player = GetNode<CharacterBody2D>("../Player");
+        _creatureEditor = GetNode<CreatureEditor>("../CreatureEditor");
         BuildPauseMenu();
         BuildDialogueBox();
         _menuRoot.Visible = false;
@@ -106,6 +108,20 @@ public partial class PauseMenu : CanvasLayer
         ResumeGame();
     }
 
+    private void OpenCreatureEditor()
+    {
+        _menuRoot.Visible = false;
+        _creatureEditor.Open();
+    }
+
+    public void ReturnFromCreatureEditor()
+    {
+        _menuRoot.Visible = true;
+        _loadButton.Disabled = !SaveManager.HasSave();
+        _statusLabel.Text = "Returned from the creature editor.";
+        GetTree().Paused = true;
+    }
+
     private void ShowSettingsNotice()
     {
         _statusLabel.Text = "Settings controls arrive in a later milestone.";
@@ -141,8 +157,8 @@ public partial class PauseMenu : CanvasLayer
 
         PanelContainer panel = new();
         panel.SetAnchorsPreset(Control.LayoutPreset.Center);
-        panel.Position = new Vector2(-180, -230);
-        panel.Size = new Vector2(360, 460);
+        panel.Position = new Vector2(-180, -260);
+        panel.Size = new Vector2(360, 520);
         _menuRoot.AddChild(panel);
 
         VBoxContainer box = new();
@@ -169,6 +185,7 @@ public partial class PauseMenu : CanvasLayer
         box.AddChild(CreateButton("Save Game", SaveGame));
         _loadButton = CreateButton("Load Game", LoadGame);
         box.AddChild(_loadButton);
+        box.AddChild(CreateButton("Creature Editor", OpenCreatureEditor));
         box.AddChild(CreateButton("Settings", ShowSettingsNotice));
         box.AddChild(CreateButton("Quit to Desktop", QuitGame));
 

@@ -21,3 +21,12 @@
 - Fixed left and right arrow-key movement by adding direct arrow-key input fallback.
 - Fixed Mara's dialogue opening and closing in the same frame.
 - Interaction now recognizes E and Space directly as well as the configured action.
+
+## 0.3.0 — Creature Database and Editor
+
+- Added a JSON-backed creature database.
+- Added three original starters and five early wild creatures.
+- Added base stats, elemental categories, abilities, traits, descriptions, capture difficulty, and level-up move references.
+- Added a creature editor accessible from the pause menu.
+- Added create, duplicate, delete, edit, save-override, and reset-to-bundled operations.
+- Added validation for IDs, duplicate records, names, and stat ranges.
