@@ -8,7 +8,7 @@ public static class SaveManager
     {
         Godot.Collections.Dictionary data = new()
         {
-            ["version"] = "0.2.0",
+            ["version"] = "0.2.1",
             ["location"] = locationName,
             ["player_x"] = playerPosition.X,
             ["player_y"] = playerPosition.Y,

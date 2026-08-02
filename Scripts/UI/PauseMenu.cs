@@ -10,6 +10,7 @@ public partial class PauseMenu : CanvasLayer
     private CharacterBody2D _player = null!;
     private double _playTimeSeconds;
     private bool _dialogueOpen;
+    private ulong _dialogueOpenedFrame;
 
     public override void _Ready()
     {
@@ -40,7 +41,9 @@ public partial class PauseMenu : CanvasLayer
             }
         }
 
-        if (_dialogueOpen && Input.IsActionJustPressed("interact"))
+        if (_dialogueOpen
+            && Engine.GetProcessFrames() > _dialogueOpenedFrame
+            && Input.IsActionJustPressed("interact"))
         {
             CloseDialogue();
         }
@@ -56,6 +59,7 @@ public partial class PauseMenu : CanvasLayer
         _dialogueLabel.Text = text + "\n\n[E / Space] Continue";
         _dialogueRoot.Visible = true;
         _dialogueOpen = true;
+        _dialogueOpenedFrame = Engine.GetProcessFrames();
         GetTree().Paused = true;
     }
 

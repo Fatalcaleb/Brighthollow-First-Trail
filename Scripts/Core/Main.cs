@@ -14,12 +14,12 @@ public partial class Main : Node2D
         _interface = GetNode<PauseMenu>("Interface");
         CreateWorldBoundaries();
         QueueRedraw();
-        GD.Print("Brighthollow Milestone 0.2.0 started successfully.");
+        GD.Print("Brighthollow Milestone 0.2.1 started successfully.");
     }
 
-    public override void _UnhandledInput(InputEvent @event)
+    public override void _Input(InputEvent @event)
     {
-        if (@event.IsActionPressed("interact") && !GetTree().Paused)
+        if (IsInteractPress(@event) && !GetTree().Paused)
         {
             if (_player.GlobalPosition.DistanceTo(GuideNpcPosition) <= 85.0f)
             {
@@ -27,6 +27,19 @@ public partial class Main : Node2D
                 GetViewport().SetInputAsHandled();
             }
         }
+    }
+
+    private static bool IsInteractPress(InputEvent inputEvent)
+    {
+        if (inputEvent.IsActionPressed("interact"))
+        {
+            return true;
+        }
+
+        return inputEvent is InputEventKey keyEvent
+            && keyEvent.Pressed
+            && !keyEvent.Echo
+            && (keyEvent.Keycode == Key.E || keyEvent.Keycode == Key.Space);
     }
 
     public override void _Draw()

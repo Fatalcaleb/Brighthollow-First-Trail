@@ -15,3 +15,9 @@
 - Four-direction player movement.
 - Smooth camera follow.
 - Prototype Mossmere map and collisions.
+
+## 0.2.1 - Input and dialogue hotfix
+
+- Fixed left and right arrow-key movement by adding direct arrow-key input fallback.
+- Fixed Mara's dialogue opening and closing in the same frame.
+- Interaction now recognizes E and Space directly as well as the configured action.
