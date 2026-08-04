@@ -1,45 +1,36 @@
 # Changelog
 
-## v0.3.2 - Pause Menu Layout Hotfix
+## v0.4.0 — Mossmere Interiors and Story Foundation
 
-- Reduced pause-menu spacing and button height so the full menu fits at the project's 720p internal resolution.
-- Kept the status and help text visible instead of allowing them to spill below the screen.
-- Recorded future creature-editor plans for procedural creature families and sprite workflows.
+- Added the player-house and Professor Alder laboratory interiors.
+- Added interactable doors and fade transitions between maps.
+- Added guardian and Professor Alder story conversations.
+- Added persistent story flags and a journal objective screen.
+- Updated save files to preserve map ID, position, play time, and story flags.
+- Removed the temporary Creature Editor from the normal game menu; Brighthollow Forge is now the editing path.
+- Updated the pause menu with current-location text and Journal access.
+
+## v0.3.2 — Pause Menu Layout Hotfix
+
+- Reduced pause-menu spacing and button height.
+- Recorded future creature-editor plans.
 
 ## v0.3.1
 
-- Fixed the creature editor footer being clipped at the 960x540 internal resolution.
-- Added vertical scrolling to the editor fields.
-- Kept Save Custom Override, Reset to Bundled Data, and Close Editor visible.
+- Fixed the creature editor footer being clipped.
 
+## v0.3.0 — Creature Database and Editor
 
-## 0.2.0 — Pause, Save, and Interaction
+- Added a JSON-backed creature database and temporary in-game editor.
 
-- Added an Esc pause menu.
-- Added slot-one JSON save and load.
-- Save data includes player position, location, play time, version, and timestamp.
-- Added Mara, the first interactable NPC.
-- Added a dialogue box and game pausing during dialogue.
-- Added menu controls for resume, settings notice, and quitting.
+## v0.2.1 — Input and Dialogue Hotfix
 
-## 0.1.0 — Foundation
+- Fixed arrow movement and NPC dialogue input.
 
-- Initial Godot 4.7.1 .NET project.
-- Four-direction player movement.
-- Smooth camera follow.
-- Prototype Mossmere map and collisions.
+## v0.2.0 — Pause, Save, and Interaction
 
-## 0.2.1 - Input and dialogue hotfix
+- Added pause, save/load, Mara, and dialogue.
 
-- Fixed left and right arrow-key movement by adding direct arrow-key input fallback.
-- Fixed Mara's dialogue opening and closing in the same frame.
-- Interaction now recognizes E and Space directly as well as the configured action.
+## v0.1.0 — Foundation
 
-## 0.3.0 — Creature Database and Editor
-
-- Added a JSON-backed creature database.
-- Added three original starters and five early wild creatures.
-- Added base stats, elemental categories, abilities, traits, descriptions, capture difficulty, and level-up move references.
-- Added a creature editor accessible from the pause menu.
-- Added create, duplicate, delete, edit, save-override, and reset-to-bundled operations.
-- Added validation for IDs, duplicate records, names, and stat ranges.
+- Initial Godot project, movement, camera, collision, and test town.

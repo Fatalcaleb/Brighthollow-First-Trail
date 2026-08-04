@@ -1,18 +1,34 @@
 using Godot;
+using System.Collections.Generic;
+
+public sealed class GameSaveData
+{
+    public Vector2 PlayerPosition { get; set; }
+    public string MapId { get; set; } = "mossmere";
+    public double PlayTimeSeconds { get; set; }
+    public Dictionary<string, bool> StoryFlags { get; set; } = new();
+}
 
 public static class SaveManager
 {
     private const string SavePath = "user://save_slot_1.json";
 
-    public static bool Save(Vector2 playerPosition, string locationName, double playTimeSeconds)
+    public static bool Save(GameSaveData save)
     {
+        Godot.Collections.Dictionary flags = new();
+        foreach ((string key, bool value) in save.StoryFlags)
+        {
+            flags[key] = value;
+        }
+
         Godot.Collections.Dictionary data = new()
         {
-            ["version"] = "0.3.0",
-            ["location"] = locationName,
-            ["player_x"] = playerPosition.X,
-            ["player_y"] = playerPosition.Y,
-            ["play_time_seconds"] = playTimeSeconds,
+            ["version"] = "0.4.0",
+            ["map_id"] = save.MapId,
+            ["player_x"] = save.PlayerPosition.X,
+            ["player_y"] = save.PlayerPosition.Y,
+            ["play_time_seconds"] = save.PlayTimeSeconds,
+            ["story_flags"] = flags,
             ["saved_at"] = Time.GetDatetimeStringFromSystem()
         };
 
@@ -27,12 +43,9 @@ public static class SaveManager
         return true;
     }
 
-    public static bool TryLoad(out Vector2 playerPosition, out string locationName, out double playTimeSeconds)
+    public static bool TryLoad(out GameSaveData save)
     {
-        playerPosition = Vector2.Zero;
-        locationName = "Mossmere";
-        playTimeSeconds = 0.0;
-
+        save = new GameSaveData();
         if (!FileAccess.FileExists(SavePath))
         {
             return false;
@@ -58,18 +71,17 @@ public static class SaveManager
             return false;
         }
 
-        float x = data["player_x"].AsSingle();
-        float y = data["player_y"].AsSingle();
-        playerPosition = new Vector2(x, y);
+        save.PlayerPosition = new Vector2(data["player_x"].AsSingle(), data["player_y"].AsSingle());
+        save.MapId = data.ContainsKey("map_id") ? data["map_id"].AsString() : "mossmere";
+        save.PlayTimeSeconds = data.ContainsKey("play_time_seconds") ? data["play_time_seconds"].AsDouble() : 0.0;
 
-        if (data.ContainsKey("location"))
+        if (data.ContainsKey("story_flags") && data["story_flags"].VariantType == Variant.Type.Dictionary)
         {
-            locationName = data["location"].AsString();
-        }
-
-        if (data.ContainsKey("play_time_seconds"))
-        {
-            playTimeSeconds = data["play_time_seconds"].AsDouble();
+            Godot.Collections.Dictionary flags = data["story_flags"].AsGodotDictionary();
+            foreach (Variant key in flags.Keys)
+            {
+                save.StoryFlags[key.AsString()] = flags[key].AsBool();
+            }
         }
 
         return true;

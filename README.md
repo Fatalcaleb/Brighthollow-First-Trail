@@ -2,41 +2,32 @@
 
 Original single-player monster-catching RPG built with **Godot 4.7.1 .NET** and **C#**.
 
-## Milestone 0.3.0 — Creature Database and Editor
+## Milestone 0.4.0 — Mossmere Interiors and Story Foundation
 
-This milestone adds the first data-driven creature system:
+This milestone adds the first multi-map story framework:
 
-- Eight original creature definitions stored in JSON
-- Three starters: Spriglet, Cindercub, and Ripplefin
-- Five early wild creatures
-- Base stats, elemental categories, ability, traits, capture difficulty, description, and level moves
-- Built-in developer creature editor
-- Validation for missing names, duplicate IDs, invalid IDs, and stat limits
-- Custom data saved separately in Godot's user-data folder
-- One-click reset to bundled creature data
+- Mossmere overworld
+- Player-house interior
+- Professor Alder's laboratory interior
+- Door interaction and fade transitions
+- Guardian and Professor Alder conversations
+- Story/event flags
+- Journal objectives that update with progress
+- Save/load of current map, player position, play time, and story flags
+- Removed the temporary in-game Creature Editor from the player pause menu
 
-## Opening the creature editor
-
-1. Run the game.
-2. Press **Esc**.
-3. Select **Creature Editor**.
-4. Edit a creature or create a new one.
-5. Select **Save Custom Override**.
-
-The editor never overwrites the bundled `Data/Creatures/creatures.json` file. It writes a custom override to `user://creatures.custom.json`. The game loads that override first when it exists.
-
-## Requirements
-
-- Godot 4.7.1 .NET/Mono edition
-- .NET 8 SDK
+The creature data remains bundled in `Data/Creatures/creatures.json`. Development editing now belongs in the separate Brighthollow Forge application.
 
 ## Controls
 
 - Move: WASD or arrow keys
+- Interact / enter doors: E or Space
 - Pause menu: Esc
-- Interact/advance dialogue: E or Space
 
+## Test path
 
-## v0.3.2 hotfix
-
-The creature editor now scrolls vertically while keeping the Save, Reset, and Close buttons pinned at the bottom of the screen.
+1. Enter the red HOME building and speak to your guardian.
+2. Exit to Mossmere.
+3. Enter ALDER LAB and speak with Professor Alder.
+4. Open the Journal from the pause menu after each step.
+5. Save while indoors, move elsewhere, then load. The correct map and story progress should return.
