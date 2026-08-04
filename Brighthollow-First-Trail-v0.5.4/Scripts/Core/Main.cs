@@ -37,7 +37,7 @@ public partial class Main : Node2D
 
         var creatures = CreatureDatabase.LoadAll();
         GD.Print($"Loaded {creatures.Count} creature definitions.");
-        GD.Print("Brighthollow Milestone 0.5.3 started successfully.");
+        GD.Print("Brighthollow Milestone 0.5.4 started successfully.");
     }
 
     public override void _PhysicsProcess(double delta)
@@ -166,23 +166,23 @@ public partial class Main : Node2D
 
         if (_currentMapId == Mossmere)
         {
-            if (IsNear(position, new Rect2(250, 270, 60, 65)))
+            if (IsNear(position, new Rect2(258, 278, 44, 24)))
             {
                 BeginDoorTransition(PlayerHouse, new Vector2(480, 410));
                 return;
             }
 
-            if (IsNear(position, new Rect2(575, 260, 60, 70)))
+            if (IsNear(position, new Rect2(578, 278, 44, 24)))
             {
                 SetFlag("visited_alder_lab", true);
                 BeginDoorTransition(AlderLab, new Vector2(480, 430));
             }
         }
-        else if (_currentMapId == PlayerHouse && IsNear(position, new Rect2(445, 430, 70, 60)))
+        else if (_currentMapId == PlayerHouse && IsNear(position, new Rect2(452, 444, 56, 26)))
         {
             BeginDoorTransition(Mossmere, new Vector2(280, 410));
         }
-        else if (_currentMapId == AlderLab && IsNear(position, new Rect2(445, 430, 70, 60)))
+        else if (_currentMapId == AlderLab && IsNear(position, new Rect2(452, 444, 56, 26)))
         {
             BeginDoorTransition(Mossmere, new Vector2(605, 410));
         }
@@ -209,9 +209,9 @@ public partial class Main : Node2D
     {
         return _currentMapId switch
         {
-            Mossmere => IsNear(position, new Rect2(250, 270, 60, 65))
-                || IsNear(position, new Rect2(575, 260, 60, 70)),
-            PlayerHouse or AlderLab => IsNear(position, new Rect2(445, 430, 70, 60)),
+            Mossmere => IsNear(position, new Rect2(258, 278, 44, 24))
+                || IsNear(position, new Rect2(578, 278, 44, 24)),
+            PlayerHouse or AlderLab => IsNear(position, new Rect2(452, 444, 56, 26)),
             _ => false
         };
     }

@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.5.4 — Doorway Trigger Precision Hotfix
+
+- Reduced exterior doorway activation zones to match the visible door width.
+- Reduced interior exit activation zones to a shallow threshold strip.
+- Prevented transitions from triggering while merely standing near a building.
+- Preserved automatic walk-through doorway behavior and transition-loop protection.
+
 ## v0.5.3 — Doorway Loop Hotfix
 
 - Fixed repeated automatic doorway transitions when exiting interiors.
