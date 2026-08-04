@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.7.2] - 2026-08-04
+
+### Fixed
+- Refreshed the active laboratory scene immediately after starter selection.
+- Rival NPC now appears as soon as the rival receives a starter.
+- Player and rival starter habitat markers disappear immediately.
+- The remaining unchosen starter stays visible without requiring a map reload.
+
+
 ## [0.7.1] - 2026-08-04
 
 ### Added

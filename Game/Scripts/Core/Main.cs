@@ -195,6 +195,11 @@ public partial class Main : Node2D
         };
         SetFlag("starter_chosen", true);
         SetFlag("rival_received_starter", true);
+
+        // The laboratory is already on screen when the choice is made.
+        // Redraw immediately so the rival and remaining habitat reflect
+        // the new saved state without requiring a map reload.
+        QueueRedraw();
         return true;
     }
 

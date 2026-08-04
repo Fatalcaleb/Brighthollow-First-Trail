@@ -1,13 +1,5 @@
-# Brighthollow: First Trail v0.7.1
+# Brighthollow: First Trail v0.7.2
 
-A Godot 4.7.1 .NET/C# monster-catching RPG prototype.
+Patch release fixing the laboratory display after starter selection.
 
-## v0.7.1
-- Visible rival in Professor Alder's lab after starter selection
-- Rival dialogue confirms their starter
-- Journal records both starter choices
-- Chosen starter habitats disappear persistently
-- F3 development debug information screen
-- Correct Godot project version
-
-Run with Godot 4.7.1 .NET and .NET 8.
+The rival NPC and starter habitats now update immediately when the player confirms a starter. Leaving and re-entering the laboratory is no longer required.

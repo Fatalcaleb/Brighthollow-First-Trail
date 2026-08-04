@@ -1,5 +1,3 @@
-# Optional Challenge — Debug Coordinates Format
+# Optional Challenge
 
-On a separate academy branch, change the F3 debug screen so player coordinates display as whole numbers instead of one decimal place.
-
-This challenge does not affect game progression or the next release.
+Add a temporary debug print after starter selection that reports the player starter, rival starter, and remaining starter. Keep it on an Academy branch and do not merge it into the release branch.

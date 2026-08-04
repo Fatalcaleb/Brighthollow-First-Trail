@@ -1,9 +1,3 @@
-# Developer Academy — Persistent World State
+# Developer Academy — Redraws and Runtime State
 
-This release demonstrates the difference between hiding something temporarily and drawing the world from saved state.
-
-The starter table is redrawn using:
-- the player's saved party starter ID;
-- the rival's saved starter ID.
-
-Because the drawing is based on saved data, leaving the lab, loading another map, closing the game, or loading a save produces the same correct scene.
+Godot only calls a custom `_Draw()` again when the node is queued for redraw. Changing game data does not automatically redraw custom shapes. `QueueRedraw()` tells Godot that the visual representation is stale and should be rebuilt on the next frame.

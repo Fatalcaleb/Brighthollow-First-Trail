@@ -1,31 +1,26 @@
 # GitHub Information
 
 ## Branch
-`bugfix/v0.7.1-visible-rival-and-lab-state`
+`bugfix/v0.7.2-immediate-lab-refresh`
 
-## Commit title
-`v0.7.1 - add visible rival, persistent starter table state, and debug screen`
+## Commit Title
+`v0.7.2 - refresh rival and starter table immediately`
 
-## Commit description
-Adds the visible and persistent aftermath of starter selection.
-
-### Added
-- Rival NPC in Professor Alder's laboratory after starter selection
-- Rival dialogue confirming the selected starter
-- Journal text recording the rival's starter
-- Persistent starter-habitat state based on saved party and rival data
-- F3 development debug information screen
+## Commit Description
+Fixes the active laboratory display after starter selection.
 
 ### Fixed
-- Godot project name now reports v0.7.1
-- Professor Alder no longer allows starter selection after the player has chosen
+- Queues an immediate world redraw after starter and rival state is committed
+- Rival NPC appears without leaving and re-entering the lab
+- Player and rival starter markers disappear immediately
+- Remaining starter marker stays visible
 
 ### Compatibility
-- Existing v0.7.0 saves remain readable
-- No save schema change was required
+- Existing v0.7.x saves remain compatible
+- No save schema changes
 
-## Release title
-`Brighthollow: First Trail v0.7.1 — Visible Rival and Lab State`
+## Release Title
+`Brighthollow: First Trail v0.7.2 — Immediate Lab State Refresh`
 
 ## Tag
-`v0.7.1`
+`v0.7.2`
