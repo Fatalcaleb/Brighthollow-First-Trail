@@ -16,6 +16,7 @@ public partial class Main : Node2D
 
     private readonly Dictionary<string, bool> _storyFlags = new();
     private readonly List<Node> _mapCollisionNodes = new();
+    private readonly List<CollisionObject2D> _solidCollisionObjects = new();
 
     private CharacterBody2D _player = null!;
     private PauseMenu _interface = null!;
@@ -26,6 +27,7 @@ public partial class Main : Node2D
     private string _rivalStarterSpeciesId = string.Empty;
     private bool _sessionActive;
     private bool _transitionInProgress;
+    private bool _collisionEnabled = true;
     private readonly List<WorldDoor> _mapDoors = new();
     private readonly Dictionary<string, WorldSpawnPoint> _spawnPoints = new();
     private PackedScene _doorScene = null!;
@@ -38,6 +40,7 @@ public partial class Main : Node2D
     public IReadOnlyList<CreatureInstanceData> Party => _party;
     public string RivalStarterSpeciesId => _rivalStarterSpeciesId;
     public Vector2 PlayerPosition => _player.GlobalPosition;
+    public bool CollisionEnabled => _collisionEnabled;
 
     public override void _Ready()
     {
@@ -199,9 +202,27 @@ public partial class Main : Node2D
         // The laboratory is already on screen when the choice is made.
         // Redraw immediately so the rival and remaining habitat reflect
         // the new saved state without requiring a map reload.
+        if (_currentMapId == AlderLab)
+        {
+            CreateFootprintCollision(RivalPosition + new Vector2(0, 28), new Vector2(24, 18));
+            SetCollisionEnabled(_collisionEnabled);
+        }
         QueueRedraw();
         return true;
     }
+
+    public void SetCollisionEnabled(bool enabled)
+    {
+        _collisionEnabled = enabled;
+        GetNode<PlayerController>("Player").SetWorldCollisionEnabled(enabled);
+        foreach (CollisionObject2D collisionObject in _solidCollisionObjects)
+        {
+            if (!GodotObject.IsInstanceValid(collisionObject)) continue;
+            collisionObject.CollisionLayer = enabled ? 1u : 0u;
+        }
+    }
+
+    public void ToggleCollision() => SetCollisionEnabled(!_collisionEnabled);
 
     public int GetMaxHp(CreatureInstanceData instance)
     {
@@ -380,6 +401,7 @@ public partial class Main : Node2D
         _currentMapId = mapId is PlayerHouse or AlderLab ? mapId : Mossmere;
         ClearMapRuntimeNodes();
         BuildMapCollisions();
+        SetCollisionEnabled(_collisionEnabled);
         BuildWorldTransitions();
         _interface.UpdateLocation(GetLocationDisplayName());
         QueueRedraw();
@@ -408,6 +430,19 @@ public partial class Main : Node2D
             CreateBoundary(new Vector2(305, 735), new Vector2(250, 170));
             CreateBoundary(new Vector2(650, 735), new Vector2(300, 190));
             CreateBoundary(new Vector2(1220, 235), new Vector2(360, 230));
+
+            // NPCs and tree trunks use footprint collision, not full sprite collision.
+            CreateFootprintCollision(MaraPosition + new Vector2(0, 28), new Vector2(24, 18));
+            for (int x = 40; x < 1560; x += 80)
+            {
+                CreateFootprintCollision(new Vector2(x, 82), new Vector2(18, 20));
+                CreateFootprintCollision(new Vector2(x, 957), new Vector2(18, 20));
+            }
+            for (int y = 130; y < 900; y += 90)
+            {
+                CreateFootprintCollision(new Vector2(55, y + 27), new Vector2(18, 20));
+                CreateFootprintCollision(new Vector2(1530, y + 27), new Vector2(18, 20));
+            }
         }
         else
         {
@@ -418,6 +453,21 @@ public partial class Main : Node2D
             // Bottom wall split around the reusable 70-pixel exit opening.
             CreateBoundary(new Vector2(272.5f, 485), new Vector2(345, 30));
             CreateBoundary(new Vector2(687.5f, 485), new Vector2(345, 30));
+
+            if (_currentMapId == PlayerHouse)
+            {
+                CreateBoundary(new Vector2(255, 202), new Vector2(170, 105)); // Bed
+                CreateBoundary(new Vector2(710, 182), new Vector2(120, 75)); // TV
+                CreateFootprintCollision(GuardianPosition + new Vector2(0, 28), new Vector2(24, 18));
+            }
+            else if (_currentMapId == AlderLab)
+            {
+                CreateBoundary(new Vector2(300, 198), new Vector2(210, 95)); // Research terminal
+                CreateBoundary(new Vector2(590, 195), new Vector2(300, 110)); // Starter table
+                CreateFootprintCollision(AlderPosition + new Vector2(0, 28), new Vector2(24, 18));
+                if (HasFlag("rival_received_starter"))
+                    CreateFootprintCollision(RivalPosition + new Vector2(0, 28), new Vector2(24, 18));
+            }
         }
     }
 
@@ -497,6 +547,7 @@ public partial class Main : Node2D
         }
 
         _mapCollisionNodes.Clear();
+        _solidCollisionObjects.Clear();
         _mapDoors.Clear();
         _spawnPoints.Clear();
     }
@@ -511,7 +562,11 @@ public partial class Main : Node2D
         body.AddChild(collision);
         AddChild(body);
         _mapCollisionNodes.Add(body);
+        _solidCollisionObjects.Add(body);
     }
+
+    private void CreateFootprintCollision(Vector2 position, Vector2 size)
+        => CreateBoundary(position, size);
 
     private void SetFlag(string id, bool value) => _storyFlags[id] = value;
     private bool HasFlag(string id) => _storyFlags.TryGetValue(id, out bool value) && value;

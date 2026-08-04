@@ -35,4 +35,4 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 22
-text = "BRIGHTHOLLOW — MILESTONE 0.7.0\nMove: WASD / Arrows   Menu: Esc   Interact: E or Space"
+text = "BRIGHTHOLLOW — MILESTONE 0.7.3\nMove: WASD / Arrows   Menu: Esc   Interact: E or Space"

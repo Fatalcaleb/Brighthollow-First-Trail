@@ -1,9 +1,11 @@
-# Brighthollow: First Trail v0.7.2 — Immediate Lab State Refresh
+# Brighthollow: First Trail v0.7.3 — Collision and Debug Utility Pass
 
-This patch fixes the laboratory display not updating until the player left and re-entered the building.
+This release makes people and major scenery solid while improving the F3 development screen.
 
-## Fixed
-- Rival appears immediately after starter selection.
-- Chosen starter habitats disappear immediately.
-- The unchosen third starter remains visible.
-- Persistent save-driven state remains unchanged.
+## Highlights
+- Copy debug information directly to the clipboard.
+- Turn solid world collision on or off from the debug menu.
+- NPCs can no longer be walked through.
+- Beds, TVs, lab furniture, and tree trunks now block movement.
+
+Door trigger areas remain active while solid collision is disabled so map transitions can still be tested.

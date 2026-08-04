@@ -1,14 +1,29 @@
-# v0.7.2 Testing Checklist
+# v0.7.3 Testing Checklist
 
-1. Start a new game and reach Professor Alder's lab.
-2. Choose each starter in separate test saves.
-3. Immediately after confirmation, verify:
-   - the player starter disappears;
-   - the rival starter disappears;
-   - the rival NPC appears;
-   - the third starter remains visible.
-4. Do not leave the lab before checking.
-5. Speak with the rival immediately.
-6. Save, close, reopen, and Continue.
-7. Confirm the same lab state persists.
-8. Verify F3 debug information, party menu, journal, doors, and dialogue still work.
+## Build and version
+- Build the C# project with no red errors.
+- Confirm v0.7.3 appears in Godot, title screen, pause menu, F3 screen, and Output.
+
+## NPC collision
+- Confirm the player cannot walk through Mara.
+- Confirm the player cannot walk through the guardian.
+- Confirm the player cannot walk through Professor Alder.
+- Choose a starter and confirm the rival immediately becomes solid.
+- Confirm each NPC can still be spoken to from nearby.
+
+## Object collision
+- Confirm the bed and TV are solid.
+- Confirm the lab research terminal and starter table are solid.
+- Confirm border tree trunks are solid while the canopy does not create an oversized invisible wall.
+- Confirm doors and exits remain reachable.
+
+## Debug tools
+- Press F3 and click Copy All Debug Data.
+- Paste into Notepad and confirm the data is readable.
+- Toggle Collision OFF, close F3, and confirm the player can pass through solid NPCs and objects.
+- Confirm automatic doors still activate with collision off.
+- Reopen F3, toggle Collision ON, and confirm solid collision returns.
+- Change maps with collision off and confirm the setting remains off until changed.
+
+## Regression
+- Test movement, doors, dialogue, journal, party, starter choice, rival state, saving, closing, reopening, and Continue.

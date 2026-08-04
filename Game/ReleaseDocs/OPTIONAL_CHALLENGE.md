@@ -1,3 +1,5 @@
-# Optional Challenge
+# Optional Challenge 003 — Collision Status Indicator
 
-Add a temporary debug print after starter selection that reports the player starter, rival starter, and remaining starter. Keep it on an Academy branch and do not merge it into the release branch.
+On an academy branch, add a small development-only label in the corner that reads `COLLISION OFF` whenever collision is disabled.
+
+The label must disappear when collision is restored and must not affect normal gameplay or the next milestone.

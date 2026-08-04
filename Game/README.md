@@ -1,5 +1,7 @@
-# Brighthollow: First Trail v0.7.2
+# Brighthollow: First Trail v0.7.3
 
-Patch release fixing the laboratory display after starter selection.
+Collision and Debug Utility Pass.
 
-The rival NPC and starter habitats now update immediately when the player confirms a starter. Leaving and re-entering the laboratory is no longer required.
+Open `project.godot` in Godot 4.7.1 .NET, build the C# project, and run.
+
+Press F3 during gameplay for debug information, clipboard export, and a collision toggle.

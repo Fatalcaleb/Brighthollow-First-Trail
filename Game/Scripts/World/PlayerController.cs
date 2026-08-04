@@ -7,8 +7,18 @@ public partial class PlayerController : CharacterBody2D
     private Vector2 _lastDirection = Vector2.Down;
     private int _appearancePreset;
     private bool _movementEnabled = true;
+    private uint _normalCollisionMask = 1;
 
-    public override void _Ready() => QueueRedraw();
+    public override void _Ready()
+    {
+        _normalCollisionMask = CollisionMask == 0 ? 1u : CollisionMask;
+        QueueRedraw();
+    }
+
+    public void SetWorldCollisionEnabled(bool enabled)
+    {
+        CollisionMask = enabled ? _normalCollisionMask : 0u;
+    }
 
     public void SetAppearancePreset(int preset)
     {

@@ -1,26 +1,32 @@
 # GitHub Information
 
 ## Branch
-`bugfix/v0.7.2-immediate-lab-refresh`
+`feature/v0.7.3-collision-and-debug-utilities`
 
-## Commit Title
-`v0.7.2 - refresh rival and starter table immediately`
+## Commit title
+`v0.7.3 - add solid world collision and debug utilities`
 
-## Commit Description
-Fixes the active laboratory display after starter selection.
+## Commit description
 
-### Fixed
-- Queues an immediate world redraw after starter and rival state is committed
-- Rival NPC appears without leaving and re-entering the lab
-- Player and rival starter markers disappear immediately
-- Remaining starter marker stays visible
+Adds reusable solid collision for characters and major scenery while expanding the development debug screen.
+
+### Added
+- Copy All Debug Data clipboard action
+- Collision ON/OFF development toggle
+- Footprint collision for Mara, guardian, Professor Alder, and rival
+- Solid bed, TV, research terminal, and starter table
+- Tree-trunk collision around Mossmere
+
+### Changed
+- Collision is based on object footprints rather than entire sprites
+- Updated runtime and Godot project version to v0.7.3
 
 ### Compatibility
 - Existing v0.7.x saves remain compatible
 - No save schema changes
 
-## Release Title
-`Brighthollow: First Trail v0.7.2 — Immediate Lab State Refresh`
+## Release title
+`Brighthollow: First Trail v0.7.3 — Collision and Debug Utility Pass`
 
 ## Tag
-`v0.7.2`
+`v0.7.3`

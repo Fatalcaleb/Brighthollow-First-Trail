@@ -1,3 +1,7 @@
-# Developer Academy — Redraws and Runtime State
+# Developer Academy — Collision Layers and Object Footprints
 
-Godot only calls a custom `_Draw()` again when the node is queued for redraw. Changing game data does not automatically redraw custom shapes. `QueueRedraw()` tells Godot that the visual representation is stale and should be rebuilt on the next frame.
+This lesson introduces CollisionObject2D, collision layers, collision masks, and why top-down games normally collide with an object's footprint rather than its entire drawing.
+
+The player uses a small collider around the feet. Trees use a small trunk collider, allowing the canopy to visually overlap the player without behaving like a giant invisible wall.
+
+The debug collision toggle works by temporarily disabling solid collision layers while leaving doorway trigger areas active.

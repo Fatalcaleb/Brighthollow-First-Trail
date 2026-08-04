@@ -21,6 +21,9 @@ public partial class PauseMenu : CanvasLayer
     private Label _starterDetailsLabel = null!;
     private Label _starterStatusLabel = null!;
     private Label _debugLabel = null!;
+    private Label _debugStatusLabel = null!;
+    private Button _collisionToggleButton = null!;
+    private string _debugText = string.Empty;
     private Label _locationLabel = null!;
     private Label _profileLabel = null!;
     private Label _titleMetadataLabel = null!;
@@ -646,7 +649,16 @@ public partial class PauseMenu : CanvasLayer
         _debugLabel.AddThemeFontSizeOverride("font_size", 17);
         scroll.AddChild(_debugLabel);
         box.AddChild(scroll);
-        box.AddChild(CreateButton("Close", CloseDebugScreen, 200, 42));
+        HBoxContainer actions = new() { Alignment = BoxContainer.AlignmentMode.Center };
+        actions.AddThemeConstantOverride("separation", 10);
+        actions.AddChild(CreateButton("Copy All Debug Data", CopyDebugData, 220, 42));
+        _collisionToggleButton = CreateButton("Collision: ON", ToggleCollision, 180, 42);
+        actions.AddChild(_collisionToggleButton);
+        actions.AddChild(CreateButton("Close", CloseDebugScreen, 150, 42));
+        box.AddChild(actions);
+        _debugStatusLabel = new Label { HorizontalAlignment = HorizontalAlignment.Center };
+        _debugStatusLabel.AddThemeColorOverride("font_color", new Color("#9ed6a3"));
+        box.AddChild(_debugStatusLabel);
     }
 
     private void OpenDebugScreen()
@@ -658,10 +670,36 @@ public partial class PauseMenu : CanvasLayer
         string flags = _main.StoryFlags.Count == 0
             ? "None"
             : string.Join("\n", _main.StoryFlags.Where(pair => pair.Value).Select(pair => $"• {pair.Key}"));
-        _debugLabel.Text = $"Game: Brighthollow: First Trail\nVersion: {BuildInfo.DisplayVersion}\nDebug Build: Yes\n\nCurrent Map: {_main.CurrentMapId}\nPlayer Coordinates: X={_main.PlayerPosition.X:0.0}, Y={_main.PlayerPosition.Y:0.0}\nPlayer: {_main.Profile.PlayerName}\nRival: {_main.Profile.RivalName}\nPlayer Starter: {playerStarter?.Name ?? "None"} [{playerStarter?.Id ?? "—"}]\nRival Starter: {rivalStarter?.Name ?? "None"} [{rivalStarter?.Id ?? "—"}]\nParty Count: {_main.Party.Count}\n\nStory Flags\n{flags}";
+        _debugText = $"Game: Brighthollow: First Trail\nVersion: {BuildInfo.DisplayVersion}\nDebug Build: Yes\nCollision: {(_main.CollisionEnabled ? "ON" : "OFF")}\n\nCurrent Map: {_main.CurrentMapId}\nPlayer Coordinates: X={_main.PlayerPosition.X:0.0}, Y={_main.PlayerPosition.Y:0.0}\nPlayer: {_main.Profile.PlayerName}\nRival: {_main.Profile.RivalName}\nPlayer Starter: {playerStarter?.Name ?? "None"} [{playerStarter?.Id ?? "—"}]\nRival Starter: {rivalStarter?.Name ?? "None"} [{rivalStarter?.Id ?? "—"}]\nParty Count: {_main.Party.Count}\n\nStory Flags\n{flags}";
+        _debugLabel.Text = _debugText;
+        _collisionToggleButton.Text = $"Collision: {(_main.CollisionEnabled ? "ON" : "OFF")}";
+        _debugStatusLabel.Text = string.Empty;
         _debugRoot.Visible = true;
         _debugOpen = true;
         GetTree().Paused = true;
+    }
+
+    private void CopyDebugData()
+    {
+        DisplayServer.ClipboardSet(_debugText);
+        _debugStatusLabel.Text = "Debug data copied to clipboard.";
+    }
+
+    private void ToggleCollision()
+    {
+        _main.ToggleCollision();
+        _collisionToggleButton.Text = $"Collision: {(_main.CollisionEnabled ? "ON" : "OFF")}";
+        _debugStatusLabel.Text = $"World collision turned {(_main.CollisionEnabled ? "on" : "off")}.";
+        int collisionLineStart = _debugText.IndexOf("Collision: ", StringComparison.Ordinal);
+        if (collisionLineStart >= 0)
+        {
+            int collisionLineEnd = _debugText.IndexOf('\n', collisionLineStart);
+            string currentLine = collisionLineEnd >= 0
+                ? _debugText.Substring(collisionLineStart, collisionLineEnd - collisionLineStart)
+                : _debugText.Substring(collisionLineStart);
+            _debugText = _debugText.Replace(currentLine, $"Collision: {(_main.CollisionEnabled ? "ON" : "OFF")}");
+            _debugLabel.Text = _debugText;
+        }
     }
 
     private void CloseDebugScreen()
