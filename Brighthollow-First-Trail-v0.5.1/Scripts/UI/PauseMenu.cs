@@ -20,6 +20,8 @@ public partial class PauseMenu : CanvasLayer
     private Button _continueButton = null!;
     private LineEdit _playerNameInput = null!;
     private LineEdit _rivalNameInput = null!;
+    private Label _playerNameCounter = null!;
+    private Label _rivalNameCounter = null!;
     private OptionButton _appearanceSelect = null!;
     private ConfirmationDialog _overwriteDialog = null!;
     private Main _main = null!;
@@ -29,6 +31,16 @@ public partial class PauseMenu : CanvasLayer
     private bool _journalOpen;
     private bool _sessionStarted;
     private ulong _dialogueOpenedFrame;
+
+    private static readonly string[] PlayerNameSuggestions =
+    {
+        "Avery", "Caleb", "Jordan", "Morgan", "Riley", "Skyler", "Taylor", "Quinn"
+    };
+
+    private static readonly string[] RivalNameSuggestions =
+    {
+        "Rowan", "Mara", "Ellis", "Sage", "Reese", "Emery", "Parker", "Casey"
+    };
 
     public override void _Ready()
     {
@@ -296,7 +308,7 @@ public partial class PauseMenu : CanvasLayer
             CustomMinimumSize = new Vector2(420, 92)
         };
         box.AddChild(_titleMetadataLabel);
-        box.AddChild(new Label { Text = "v0.5.0 — Identity", HorizontalAlignment = HorizontalAlignment.Center });
+        box.AddChild(new Label { Text = "v0.5.1 — Identity", HorizontalAlignment = HorizontalAlignment.Center });
     }
 
     private void BuildSetupScreen()
@@ -308,18 +320,32 @@ public partial class PauseMenu : CanvasLayer
         _setupRoot.AddChild(background);
 
         PanelContainer panel = CenterPanel(_setupRoot, new Vector2(600, 500));
-        VBoxContainer box = CreateVerticalBox(panel, 10);
+        VBoxContainer box = CreateVerticalBox(panel, 6);
         Label title = new() { Text = "CREATE YOUR TRAINER", HorizontalAlignment = HorizontalAlignment.Center };
         title.AddThemeFontSizeOverride("font_size", 30);
         box.AddChild(title);
 
         box.AddChild(new Label { Text = "Player Name" });
-        _playerNameInput = new LineEdit { PlaceholderText = "Trainer", MaxLength = 18, Text = "Caleb" };
+        _playerNameInput = new LineEdit { PlaceholderText = "Enter your own name", MaxLength = 16, Text = "Caleb" };
+        _playerNameInput.TextChanged += _ => UpdateNameCounters();
         box.AddChild(_playerNameInput);
+        HBoxContainer playerNameTools = new() { Alignment = BoxContainer.AlignmentMode.End };
+        playerNameTools.AddThemeConstantOverride("separation", 10);
+        playerNameTools.AddChild(CreateButton("Suggest Name", SuggestPlayerName, 150, 34));
+        _playerNameCounter = new Label { Text = "5 / 16", VerticalAlignment = VerticalAlignment.Center };
+        playerNameTools.AddChild(_playerNameCounter);
+        box.AddChild(playerNameTools);
 
         box.AddChild(new Label { Text = "Rival Name" });
-        _rivalNameInput = new LineEdit { PlaceholderText = "Rowan", MaxLength = 18, Text = "Rowan" };
+        _rivalNameInput = new LineEdit { PlaceholderText = "Enter a custom rival name", MaxLength = 16, Text = "Rowan" };
+        _rivalNameInput.TextChanged += _ => UpdateNameCounters();
         box.AddChild(_rivalNameInput);
+        HBoxContainer rivalNameTools = new() { Alignment = BoxContainer.AlignmentMode.End };
+        rivalNameTools.AddThemeConstantOverride("separation", 10);
+        rivalNameTools.AddChild(CreateButton("Suggest Name", SuggestRivalName, 150, 34));
+        _rivalNameCounter = new Label { Text = "5 / 16", VerticalAlignment = VerticalAlignment.Center };
+        rivalNameTools.AddChild(_rivalNameCounter);
+        box.AddChild(rivalNameTools);
 
         box.AddChild(new Label { Text = "Appearance Preset" });
         _appearanceSelect = new OptionButton();
@@ -344,6 +370,35 @@ public partial class PauseMenu : CanvasLayer
 
         _setupStatusLabel = new Label { HorizontalAlignment = HorizontalAlignment.Center };
         box.AddChild(_setupStatusLabel);
+        UpdateNameCounters();
+    }
+
+
+    private void SuggestPlayerName()
+    {
+        _playerNameInput.Text = PlayerNameSuggestions[GD.RandRange(0, PlayerNameSuggestions.Length - 1)];
+        _playerNameInput.CaretColumn = _playerNameInput.Text.Length;
+        UpdateNameCounters();
+    }
+
+    private void SuggestRivalName()
+    {
+        _rivalNameInput.Text = RivalNameSuggestions[GD.RandRange(0, RivalNameSuggestions.Length - 1)];
+        _rivalNameInput.CaretColumn = _rivalNameInput.Text.Length;
+        UpdateNameCounters();
+    }
+
+    private void UpdateNameCounters()
+    {
+        if (_playerNameCounter is not null)
+        {
+            _playerNameCounter.Text = $"{_playerNameInput.Text.Length} / 16";
+        }
+
+        if (_rivalNameCounter is not null)
+        {
+            _rivalNameCounter.Text = $"{_rivalNameInput.Text.Length} / 16";
+        }
     }
 
     private void BuildPauseMenu()

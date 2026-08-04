@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.5.1 - Identity Naming Update
+
+- Added player-name suggestions
+- Added rival-name suggestions
+- Preserved fully custom name entry
+- Standardized player and rival limits at 16 characters
+- Added live character counters
+- Added `PROJECT_STANDARDS.md`
+
+
 ## v0.5.0 — Identity
 
 ### Added

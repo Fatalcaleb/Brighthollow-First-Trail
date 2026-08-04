@@ -42,3 +42,8 @@ A `Vector2` contains X and Y values. It can represent position, speed, or direct
 - `Scripts/UI/PauseMenu.cs`
 
 Do not worry about understanding every line at once. Follow one behavior from input to visible result.
+
+
+## v0.5.1 observation
+
+Open `PauseMenu.cs` and find the suggestion arrays, button callbacks, `MaxLength`, and `TextChanged` handlers. These demonstrate arrays, event subscriptions, methods, and UI state updates.
