@@ -1,4 +1,4 @@
-# Brighthollow: First Trail v0.6.1
+# Brighthollow: First Trail v0.6.2
 
 A Godot 4.7.1 .NET/C# prototype for an original monster-catching RPG.
 

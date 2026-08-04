@@ -148,7 +148,7 @@ public static class SaveManager
 
         try
         {
-            string? appData = Environment.GetEnvironmentVariable("APPDATA");
+            string? appData = System.Environment.GetEnvironmentVariable("APPDATA");
             if (string.IsNullOrWhiteSpace(appData))
             {
                 return;

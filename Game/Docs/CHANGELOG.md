@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.6.2 — Save Migration Compile Fix
+
+### Fixed
+- Resolved the ambiguous `Environment` reference in `SaveManager.cs` by explicitly using `System.Environment`.
+- Enabled nullable reference types in the C# project so nullable annotations compile in their intended context.
+- Updated runtime and project version labels to v0.6.2.
+
+
 ## v0.6.1 — Save Continuity and Spawn Placement
 
 ### Added
