@@ -1,36 +1,28 @@
 # Changelog
 
-## v0.4.0 — Mossmere Interiors and Story Foundation
+## v0.5.0 — Identity
 
-- Added the player-house and Professor Alder laboratory interiors.
-- Added interactable doors and fade transitions between maps.
-- Added guardian and Professor Alder story conversations.
-- Added persistent story flags and a journal objective screen.
-- Updated save files to preserve map ID, position, play time, and story flags.
-- Removed the temporary Creature Editor from the normal game menu; Brighthollow Forge is now the editing path.
-- Updated the pause menu with current-location text and Journal access.
+### Added
 
-## v0.3.2 — Pause Menu Layout Hotfix
+- Title screen with New Game, Continue, and Quit
+- Player and rival name entry
+- Four temporary appearance presets
+- Existing-save warning before opening new-game setup
+- Save metadata preview on title screen
+- Player profile serialization
+- Player and rival identity in the pause menu and story text
 
-- Reduced pause-menu spacing and button height.
-- Recorded future creature-editor plans.
+### Changed
 
-## v0.3.1
+- The game now begins at a title screen instead of immediately entering Mossmere.
+- New games begin inside the player house.
+- Save format version advanced to 0.5.0.
 
-- Fixed the creature editor footer being clipped.
+### Preserved
 
-## v0.3.0 — Creature Database and Editor
-
-- Added a JSON-backed creature database and temporary in-game editor.
-
-## v0.2.1 — Input and Dialogue Hotfix
-
-- Fixed arrow movement and NPC dialogue input.
-
-## v0.2.0 — Pause, Save, and Interaction
-
-- Added pause, save/load, Mara, and dialogue.
-
-## v0.1.0 — Foundation
-
-- Initial Godot project, movement, camera, collision, and test town.
+- Four-direction movement
+- NPC dialogue
+- Map transitions
+- Journal
+- Story flags
+- Persistent save/load across sessions

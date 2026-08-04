@@ -18,25 +18,29 @@ public partial class Main : Node2D
     private CharacterBody2D _player = null!;
     private PauseMenu _interface = null!;
     private string _currentMapId = Mossmere;
+    private PlayerProfileData _profile = new();
+    private bool _sessionActive;
 
     public string CurrentMapId => _currentMapId;
     public IReadOnlyDictionary<string, bool> StoryFlags => _storyFlags;
+    public PlayerProfileData Profile => _profile;
+    public bool SessionActive => _sessionActive;
 
     public override void _Ready()
     {
         _player = GetNode<CharacterBody2D>("Player");
         _interface = GetNode<PauseMenu>("Interface");
-        SetFlag("arrived_in_mossmere", true);
         LoadMap(Mossmere, new Vector2(480, 370));
+        _player.Visible = false;
 
         var creatures = CreatureDatabase.LoadAll();
         GD.Print($"Loaded {creatures.Count} creature definitions.");
-        GD.Print("Brighthollow Milestone 0.4.0 started successfully.");
+        GD.Print("Brighthollow Milestone 0.5.0 started successfully.");
     }
 
     public override void _Input(InputEvent @event)
     {
-        if (!IsInteractPress(@event) || GetTree().Paused)
+        if (!_sessionActive || !IsInteractPress(@event) || GetTree().Paused)
         {
             return;
         }
@@ -52,11 +56,37 @@ public partial class Main : Node2D
         PlayerPosition = _player.GlobalPosition,
         MapId = _currentMapId,
         PlayTimeSeconds = playTimeSeconds,
-        StoryFlags = new Dictionary<string, bool>(_storyFlags)
+        StoryFlags = new Dictionary<string, bool>(_storyFlags),
+        Profile = new PlayerProfileData
+        {
+            PlayerName = _profile.PlayerName,
+            RivalName = _profile.RivalName,
+            AppearancePreset = _profile.AppearancePreset
+        }
     };
+
+    public void BeginNewGame(PlayerProfileData profile)
+    {
+        _profile = new PlayerProfileData
+        {
+            PlayerName = profile.PlayerName,
+            RivalName = profile.RivalName,
+            AppearancePreset = profile.AppearancePreset
+        };
+        _storyFlags.Clear();
+        SetFlag("arrived_in_mossmere", true);
+        _sessionActive = true;
+        _player.Visible = true;
+        GetNode<PlayerController>("Player").SetAppearancePreset(_profile.AppearancePreset);
+        LoadMap(PlayerHouse, new Vector2(480, 360));
+    }
 
     public void ApplySaveData(GameSaveData save)
     {
+        _profile = save.Profile;
+        _sessionActive = true;
+        _player.Visible = true;
+        GetNode<PlayerController>("Player").SetAppearancePreset(_profile.AppearancePreset);
         _storyFlags.Clear();
         foreach ((string key, bool value) in save.StoryFlags)
         {
@@ -77,7 +107,7 @@ public partial class Main : Node2D
     {
         if (!HasFlag("spoke_to_guardian"))
         {
-            return "Mossmere Arrival\n\nYou have settled into your new home in Mossmere. Talk to your guardian before exploring town.";
+            return $"Mossmere Arrival\n\n{_profile.PlayerName}, you have settled into your new home in Mossmere. Talk to your guardian before exploring town.";
         }
 
         if (!HasFlag("visited_alder_lab"))
@@ -90,7 +120,7 @@ public partial class Main : Node2D
             return "Professor Alder's Laboratory\n\nYou reached the laboratory. Speak with Professor Alder near the research table.";
         }
 
-        return "A New Trail\n\nProfessor Alder is preparing three young creatures for new trainers. The starter selection will arrive in the next milestone.";
+        return $"A New Trail\n\nProfessor Alder is preparing three young creatures for {_profile.PlayerName}. {_profile.RivalName} is also expected at the laboratory soon.";
     }
 
     public override void _Draw()
@@ -139,7 +169,7 @@ public partial class Main : Node2D
             if (position.DistanceTo(GuardianPosition) <= 85)
             {
                 SetFlag("spoke_to_guardian", true);
-                _interface.ShowDialogue("Guardian: Professor Alder stopped by earlier. He asked you to visit the laboratory when you're ready.");
+                _interface.ShowDialogue($"Guardian: { _profile.PlayerName }, Professor Alder stopped by earlier. He asked you to visit the laboratory when you're ready.");
                 return true;
             }
 

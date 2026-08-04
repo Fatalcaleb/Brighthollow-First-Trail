@@ -1,37 +1,27 @@
 # Brighthollow Game Roadmap
 
-Brighthollow Forge is maintained as a separate Avalonia/.NET application and is not required to play or export the game.
-
 ## Completed
 
-- [x] v0.1.x — Movement, camera, collision
-- [x] v0.2.x — Pause, save/load, NPC dialogue
-- [x] v0.3.x — Creature JSON foundation
-- [x] v0.4.0 — Multiple maps, doors, fades, journal, story flags, indoor saving
+- v0.1.x — Foundation and movement
+- v0.2.x — Dialogue, pause menu, save/load
+- v0.3.x — Creature data prototype and editor separation
+- v0.4.x — Interiors, transitions, journal, and story flags
+- v0.5.0 — Title screen and player identity
 
-## Next: v0.5.0 — Starter and Party Foundation
+## Next
 
-- Starter habitat displays
-- Choose Spriglet, Cindercub, or Ripplefin
-- Creature-instance model with level and current HP
-- Six-slot party data
-- Save/load party
-- Starter choice flag
-- Rival introduction shell
+### v0.6.0 — First Companions
 
-## v0.6.0 — First Battle
+- Starter selection
+- Party data model
+- Three starter records finalized for runtime use
+- Rival introduction
+- First basic one-on-one battle
 
-- One-on-one turn-based battle
-- Move selection
-- HP and damage
-- Turn order
-- Victory/defeat
-- Experience and leveling
+### Later
 
-## v0.7.0 — First Route Loop
-
-- Route outside Mossmere
-- Wild encounters
-- Capture devices
-- Party management
-- Inventory
+- Wild encounters and capturing
+- Inventory and shops
+- First route and cave
+- Arena progression
+- Weather, status effects, doubles, championship, and post-game

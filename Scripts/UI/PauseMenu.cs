@@ -3,6 +3,8 @@ using System;
 
 public partial class PauseMenu : CanvasLayer
 {
+    private Control _titleRoot = null!;
+    private Control _setupRoot = null!;
     private Control _menuRoot = null!;
     private Control _dialogueRoot = null!;
     private Control _journalRoot = null!;
@@ -11,30 +13,58 @@ public partial class PauseMenu : CanvasLayer
     private Label _dialogueLabel = null!;
     private Label _journalLabel = null!;
     private Label _locationLabel = null!;
+    private Label _profileLabel = null!;
+    private Label _titleMetadataLabel = null!;
+    private Label _setupStatusLabel = null!;
     private Button _loadButton = null!;
+    private Button _continueButton = null!;
+    private LineEdit _playerNameInput = null!;
+    private LineEdit _rivalNameInput = null!;
+    private OptionButton _appearanceSelect = null!;
+    private ConfirmationDialog _overwriteDialog = null!;
     private Main _main = null!;
+    private Label _instructions = null!;
     private double _playTimeSeconds;
     private bool _dialogueOpen;
     private bool _journalOpen;
+    private bool _sessionStarted;
     private ulong _dialogueOpenedFrame;
 
     public override void _Ready()
     {
         ProcessMode = ProcessModeEnum.Always;
         _main = GetNode<Main>("..");
+        _instructions = GetNode<Label>("Instructions");
+
+        BuildTitleScreen();
+        BuildSetupScreen();
         BuildPauseMenu();
         BuildDialogueBox();
         BuildJournal();
         BuildFade();
+        BuildOverwriteDialog();
+
+        _setupRoot.Visible = false;
         _menuRoot.Visible = false;
         _dialogueRoot.Visible = false;
         _journalRoot.Visible = false;
+        _instructions.Visible = false;
+        RefreshTitleMetadata();
         UpdateLocation("Mossmere");
+        GetTree().Paused = true;
     }
 
     public override void _Process(double delta)
     {
-        if (!GetTree().Paused) _playTimeSeconds += delta;
+        if (_sessionStarted && !GetTree().Paused)
+        {
+            _playTimeSeconds += delta;
+        }
+
+        if (!_sessionStarted)
+        {
+            return;
+        }
 
         if (Input.IsActionJustPressed("pause_menu"))
         {
@@ -56,7 +86,7 @@ public partial class PauseMenu : CanvasLayer
 
     public void ShowDialogue(string text)
     {
-        if (_menuRoot.Visible) return;
+        if (_menuRoot.Visible || !_sessionStarted) return;
         _dialogueLabel.Text = text + "\n\n[E / Space] Continue";
         _dialogueRoot.Visible = true;
         _dialogueOpen = true;
@@ -82,12 +112,103 @@ public partial class PauseMenu : CanvasLayer
         }));
     }
 
+    private void RequestNewGame()
+    {
+        if (SaveManager.HasSave())
+        {
+            _overwriteDialog.PopupCentered();
+            return;
+        }
+
+        OpenSetupScreen();
+    }
+
+    private void OpenSetupScreen()
+    {
+        _titleRoot.Visible = false;
+        _setupRoot.Visible = true;
+        _setupStatusLabel.Text = string.Empty;
+        _playerNameInput.GrabFocus();
+    }
+
+    private void CancelSetup()
+    {
+        _setupRoot.Visible = false;
+        _titleRoot.Visible = true;
+        RefreshTitleMetadata();
+    }
+
+    private void ConfirmNewGame()
+    {
+        string playerName = _playerNameInput.Text.StripEdges();
+        string rivalName = _rivalNameInput.Text.StripEdges();
+
+        if (playerName.Length < 1)
+        {
+            _setupStatusLabel.Text = "Please enter a player name.";
+            _playerNameInput.GrabFocus();
+            return;
+        }
+
+        if (rivalName.Length < 1)
+        {
+            _setupStatusLabel.Text = "Please enter a rival name.";
+            _rivalNameInput.GrabFocus();
+            return;
+        }
+
+        PlayerProfileData profile = new()
+        {
+            PlayerName = playerName,
+            RivalName = rivalName,
+            AppearancePreset = _appearanceSelect.Selected
+        };
+
+        _main.BeginNewGame(profile);
+        _playTimeSeconds = 0;
+        BeginSession();
+    }
+
+    private void ContinueGame()
+    {
+        if (!SaveManager.TryLoad(out GameSaveData save))
+        {
+            RefreshTitleMetadata();
+            return;
+        }
+
+        _main.ApplySaveData(save);
+        _playTimeSeconds = save.PlayTimeSeconds;
+        BeginSession();
+    }
+
+    private void BeginSession()
+    {
+        _sessionStarted = true;
+        _titleRoot.Visible = false;
+        _setupRoot.Visible = false;
+        _instructions.Visible = true;
+        _profileLabel.Text = $"Trainer: {_main.Profile.PlayerName}   Rival: {_main.Profile.RivalName}";
+        UpdateLocation(_main.GetLocationDisplayName());
+        GetTree().Paused = false;
+    }
+
+    private void RefreshTitleMetadata()
+    {
+        bool hasSave = SaveManager.TryReadMetadata(out GameSaveData metadata);
+        _continueButton.Disabled = !hasSave;
+        _titleMetadataLabel.Text = hasSave
+            ? $"Continue as {metadata.Profile.PlayerName}\n{GetMapDisplayName(metadata.MapId)}  •  {FormatPlayTime(metadata.PlayTimeSeconds)}\nSaved: {metadata.SavedAt}"
+            : "No save data found. Begin a new trail.";
+    }
+
     private void ToggleMenu()
     {
         bool opening = !_menuRoot.Visible;
         _menuRoot.Visible = opening;
         _loadButton.Disabled = !SaveManager.HasSave();
-        _statusLabel.Text = opening ? "" : _statusLabel.Text;
+        _profileLabel.Text = $"Trainer: {_main.Profile.PlayerName}   Rival: {_main.Profile.RivalName}";
+        if (opening) _statusLabel.Text = string.Empty;
         GetTree().Paused = opening;
         if (opening) GetViewport().SetInputAsHandled();
     }
@@ -144,6 +265,87 @@ public partial class PauseMenu : CanvasLayer
         GetTree().Paused = false;
     }
 
+    private void BuildTitleScreen()
+    {
+        _titleRoot = FullScreenControl();
+        AddChild(_titleRoot);
+        ColorRect background = new() { Color = new Color("#14283b") };
+        background.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        _titleRoot.AddChild(background);
+
+        PanelContainer panel = CenterPanel(_titleRoot, new Vector2(520, 440));
+        VBoxContainer box = CreateVerticalBox(panel, 14);
+
+        Label title = new() { Text = "BRIGHTHOLLOW", HorizontalAlignment = HorizontalAlignment.Center };
+        title.AddThemeFontSizeOverride("font_size", 46);
+        box.AddChild(title);
+        Label subtitle = new() { Text = "FIRST TRAIL", HorizontalAlignment = HorizontalAlignment.Center };
+        subtitle.AddThemeFontSizeOverride("font_size", 22);
+        box.AddChild(subtitle);
+        box.AddChild(new HSeparator());
+
+        _continueButton = CreateButton("Continue", ContinueGame, 390, 48);
+        box.AddChild(_continueButton);
+        box.AddChild(CreateButton("New Game", RequestNewGame, 390, 48));
+        box.AddChild(CreateButton("Quit", QuitGame, 390, 48));
+
+        _titleMetadataLabel = new Label
+        {
+            HorizontalAlignment = HorizontalAlignment.Center,
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            CustomMinimumSize = new Vector2(420, 92)
+        };
+        box.AddChild(_titleMetadataLabel);
+        box.AddChild(new Label { Text = "v0.5.0 — Identity", HorizontalAlignment = HorizontalAlignment.Center });
+    }
+
+    private void BuildSetupScreen()
+    {
+        _setupRoot = FullScreenControl();
+        AddChild(_setupRoot);
+        ColorRect background = new() { Color = new Color("#1d3445") };
+        background.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        _setupRoot.AddChild(background);
+
+        PanelContainer panel = CenterPanel(_setupRoot, new Vector2(600, 500));
+        VBoxContainer box = CreateVerticalBox(panel, 10);
+        Label title = new() { Text = "CREATE YOUR TRAINER", HorizontalAlignment = HorizontalAlignment.Center };
+        title.AddThemeFontSizeOverride("font_size", 30);
+        box.AddChild(title);
+
+        box.AddChild(new Label { Text = "Player Name" });
+        _playerNameInput = new LineEdit { PlaceholderText = "Trainer", MaxLength = 18, Text = "Caleb" };
+        box.AddChild(_playerNameInput);
+
+        box.AddChild(new Label { Text = "Rival Name" });
+        _rivalNameInput = new LineEdit { PlaceholderText = "Rowan", MaxLength = 18, Text = "Rowan" };
+        box.AddChild(_rivalNameInput);
+
+        box.AddChild(new Label { Text = "Appearance Preset" });
+        _appearanceSelect = new OptionButton();
+        _appearanceSelect.AddItem("Preset 1 — Blue Trail");
+        _appearanceSelect.AddItem("Preset 2 — Rose Explorer");
+        _appearanceSelect.AddItem("Preset 3 — Green Scout");
+        _appearanceSelect.AddItem("Preset 4 — Violet Wanderer");
+        box.AddChild(_appearanceSelect);
+
+        Label note = new()
+        {
+            Text = "Appearance presets are temporary placeholders until original 32×32 sprite sheets are added.",
+            AutowrapMode = TextServer.AutowrapMode.WordSmart
+        };
+        box.AddChild(note);
+
+        HBoxContainer buttons = new() { Alignment = BoxContainer.AlignmentMode.Center };
+        buttons.AddThemeConstantOverride("separation", 12);
+        buttons.AddChild(CreateButton("Back", CancelSetup, 180, 44));
+        buttons.AddChild(CreateButton("Begin Adventure", ConfirmNewGame, 240, 44));
+        box.AddChild(buttons);
+
+        _setupStatusLabel = new Label { HorizontalAlignment = HorizontalAlignment.Center };
+        box.AddChild(_setupStatusLabel);
+    }
+
     private void BuildPauseMenu()
     {
         _menuRoot = FullScreenControl();
@@ -152,20 +354,15 @@ public partial class PauseMenu : CanvasLayer
         shade.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         _menuRoot.AddChild(shade);
 
-        PanelContainer panel = new();
-        panel.SetAnchorsPreset(Control.LayoutPreset.Center);
-        panel.Position = new Vector2(-190, -235);
-        panel.Size = new Vector2(380, 470);
-        _menuRoot.AddChild(panel);
-
-        VBoxContainer box = new();
-        box.AddThemeConstantOverride("separation", 7);
-        panel.AddChild(box);
+        PanelContainer panel = CenterPanel(_menuRoot, new Vector2(420, 510));
+        VBoxContainer box = CreateVerticalBox(panel, 7);
 
         Label title = new() { Text = "BRIGHTHOLLOW", HorizontalAlignment = HorizontalAlignment.Center };
         title.AddThemeFontSizeOverride("font_size", 28);
         box.AddChild(title);
 
+        _profileLabel = new Label { HorizontalAlignment = HorizontalAlignment.Center };
+        box.AddChild(_profileLabel);
         _locationLabel = new Label { HorizontalAlignment = HorizontalAlignment.Center };
         _locationLabel.AddThemeFontSizeOverride("font_size", 16);
         box.AddChild(_locationLabel);
@@ -178,9 +375,9 @@ public partial class PauseMenu : CanvasLayer
         box.AddChild(CreateButton("Settings", ShowSettingsNotice));
         box.AddChild(CreateButton("Quit to Desktop", QuitGame));
 
-        _statusLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, HorizontalAlignment = HorizontalAlignment.Center, CustomMinimumSize = new Vector2(330, 34) };
+        _statusLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, HorizontalAlignment = HorizontalAlignment.Center, CustomMinimumSize = new Vector2(360, 32) };
         box.AddChild(_statusLabel);
-        box.AddChild(new Label { Text = "Esc closes the menu", HorizontalAlignment = HorizontalAlignment.Center, CustomMinimumSize = new Vector2(330, 22) });
+        box.AddChild(new Label { Text = "Esc closes the menu", HorizontalAlignment = HorizontalAlignment.Center });
     }
 
     private void BuildDialogueBox()
@@ -203,14 +400,8 @@ public partial class PauseMenu : CanvasLayer
         ColorRect shade = new() { Color = new Color(0, 0, 0, 0.65f) };
         shade.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         _journalRoot.AddChild(shade);
-        PanelContainer panel = new();
-        panel.SetAnchorsPreset(Control.LayoutPreset.Center);
-        panel.Position = new Vector2(-330, -210);
-        panel.Size = new Vector2(660, 420);
-        _journalRoot.AddChild(panel);
-        VBoxContainer box = new();
-        box.AddThemeConstantOverride("separation", 14);
-        panel.AddChild(box);
+        PanelContainer panel = CenterPanel(_journalRoot, new Vector2(660, 420));
+        VBoxContainer box = CreateVerticalBox(panel, 14);
         Label title = new() { Text = "JOURNAL", HorizontalAlignment = HorizontalAlignment.Center };
         title.AddThemeFontSizeOverride("font_size", 28);
         box.AddChild(title);
@@ -228,6 +419,18 @@ public partial class PauseMenu : CanvasLayer
         AddChild(_fade);
     }
 
+    private void BuildOverwriteDialog()
+    {
+        _overwriteDialog = new ConfirmationDialog
+        {
+            Title = "Start New Game?",
+            DialogText = "A save file already exists. Starting a new game will replace it the next time you save. Continue?",
+            OkButtonText = "Continue"
+        };
+        _overwriteDialog.Confirmed += OpenSetupScreen;
+        AddChild(_overwriteDialog);
+    }
+
     private static Control FullScreenControl()
     {
         Control control = new() { MouseFilter = Control.MouseFilterEnum.Stop };
@@ -235,11 +438,44 @@ public partial class PauseMenu : CanvasLayer
         return control;
     }
 
-    private static Button CreateButton(string text, Action action)
+    private static PanelContainer CenterPanel(Control parent, Vector2 size)
     {
-        Button button = new() { Text = text, CustomMinimumSize = new Vector2(330, 40) };
+        PanelContainer panel = new();
+        panel.SetAnchorsPreset(Control.LayoutPreset.Center);
+        panel.Position = -size / 2;
+        panel.Size = size;
+        parent.AddChild(panel);
+        return panel;
+    }
+
+    private static VBoxContainer CreateVerticalBox(Container parent, int separation)
+    {
+        VBoxContainer box = new();
+        box.AddThemeConstantOverride("separation", separation);
+        parent.AddChild(box);
+        return box;
+    }
+
+    private static Button CreateButton(string text, Action action, float width = 360, float height = 40)
+    {
+        Button button = new() { Text = text, CustomMinimumSize = new Vector2(width, height) };
         button.AddThemeFontSizeOverride("font_size", 18);
         button.Pressed += action;
         return button;
+    }
+
+    private static string GetMapDisplayName(string mapId) => mapId switch
+    {
+        "player_house" => "Your House",
+        "alder_lab" => "Professor Alder's Laboratory",
+        _ => "Mossmere"
+    };
+
+    private static string FormatPlayTime(double seconds)
+    {
+        int totalMinutes = (int)(seconds / 60.0);
+        int hours = totalMinutes / 60;
+        int minutes = totalMinutes % 60;
+        return $"{hours:00}:{minutes:00}";
     }
 }
