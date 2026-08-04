@@ -1,30 +1,25 @@
-# Brighthollow v0.5.1 Testing Checklist
+# v0.5.2 Testing Checklist
 
-## Name entry
+## Automatic doors
+- Walk into the HOME doorway from Mossmere and confirm the house loads.
+- Walk into the interior exit and confirm Mossmere loads.
+- Walk into the ALDER LAB doorway and confirm the lab loads.
+- Walk into the laboratory exit and confirm Mossmere loads.
+- Confirm no E or Space press is needed for any doorway.
+- Stand near a doorway without entering its trigger and confirm no transition occurs.
+- Hold a movement key while transitioning and confirm the game does not bounce repeatedly between maps.
 
-- Confirm player and rival fields accept custom names.
-- Confirm both fields stop at 16 characters.
-- Confirm the live counters update while typing and deleting.
-- Confirm blank or whitespace-only names cannot begin the game.
-- Confirm spaces inside a valid name are preserved after trimming leading/trailing spaces.
+## Interaction regression
+- Speak to Mara with E and Space.
+- Speak to the guardian with E and Space.
+- Speak to Professor Alder with E and Space.
+- Interact with the bed and research terminal.
 
-## Suggestions
+## Save regression
+- Save inside each map.
+- Close the game, reopen it, and Continue or Load.
+- Confirm map, position, names, appearance, journal, and story flags are restored.
 
-- Press **Suggest Name** several times for the player.
-- Press **Suggest Name** several times for the rival.
-- Confirm each suggestion stays within 16 characters.
-- Confirm a suggestion can be edited afterward.
-- Confirm typing a fully custom name still works.
-
-## Persistence
-
-- Start a game with recognizable custom names.
-- Save, close the game completely, reopen, and Continue.
-- Confirm both names remain correct in the pause menu, dialogue, journal, and title metadata.
-
-## Regression checks
-
-- New Game, Continue, and overwrite warning work.
-- Appearance presets work.
-- Movement, dialogue, doors, fades, journal, save, and load still work.
-- No setup-screen controls are cut off at the normal window size.
+## UI regression
+- Verify title screen, New Game, Continue, name suggestions, counters, and pause menu.
+- Confirm nothing is cut off at the selected window size.

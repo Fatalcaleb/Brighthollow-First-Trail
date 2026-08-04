@@ -20,6 +20,7 @@ public partial class Main : Node2D
     private string _currentMapId = Mossmere;
     private PlayerProfileData _profile = new();
     private bool _sessionActive;
+    private bool _doorTransitionInProgress;
 
     public string CurrentMapId => _currentMapId;
     public IReadOnlyDictionary<string, bool> StoryFlags => _storyFlags;
@@ -35,7 +36,17 @@ public partial class Main : Node2D
 
         var creatures = CreatureDatabase.LoadAll();
         GD.Print($"Loaded {creatures.Count} creature definitions.");
-        GD.Print("Brighthollow Milestone 0.5.1 started successfully.");
+        GD.Print("Brighthollow Milestone 0.5.2 started successfully.");
+    }
+
+    public override void _PhysicsProcess(double delta)
+    {
+        if (!_sessionActive || GetTree().Paused || _doorTransitionInProgress)
+        {
+            return;
+        }
+
+        TryHandleAutomaticDoor();
     }
 
     public override void _Input(InputEvent @event)
@@ -139,6 +150,49 @@ public partial class Main : Node2D
         }
     }
 
+    private void TryHandleAutomaticDoor()
+    {
+        Vector2 position = _player.GlobalPosition;
+
+        if (_currentMapId == Mossmere)
+        {
+            if (IsNear(position, new Rect2(250, 270, 60, 65)))
+            {
+                BeginDoorTransition(PlayerHouse, new Vector2(480, 410));
+                return;
+            }
+
+            if (IsNear(position, new Rect2(575, 260, 60, 70)))
+            {
+                SetFlag("visited_alder_lab", true);
+                BeginDoorTransition(AlderLab, new Vector2(480, 430));
+            }
+        }
+        else if (_currentMapId == PlayerHouse && IsNear(position, new Rect2(445, 430, 70, 60)))
+        {
+            BeginDoorTransition(Mossmere, new Vector2(280, 365));
+        }
+        else if (_currentMapId == AlderLab && IsNear(position, new Rect2(445, 430, 70, 60)))
+        {
+            BeginDoorTransition(Mossmere, new Vector2(605, 365));
+        }
+    }
+
+    private void BeginDoorTransition(string mapId, Vector2 spawn)
+    {
+        if (_doorTransitionInProgress)
+        {
+            return;
+        }
+
+        _doorTransitionInProgress = true;
+        _interface.PlayTransition(() =>
+        {
+            LoadMap(mapId, spawn);
+            _doorTransitionInProgress = false;
+        });
+    }
+
     private bool TryHandleInteraction()
     {
         Vector2 position = _player.GlobalPosition;
@@ -151,18 +205,6 @@ public partial class Main : Node2D
                 return true;
             }
 
-            if (IsNear(position, new Rect2(250, 270, 60, 65)))
-            {
-                TransitionTo(PlayerHouse, new Vector2(480, 410));
-                return true;
-            }
-
-            if (IsNear(position, new Rect2(575, 260, 60, 70)))
-            {
-                SetFlag("visited_alder_lab", true);
-                TransitionTo(AlderLab, new Vector2(480, 430));
-                return true;
-            }
         }
         else if (_currentMapId == PlayerHouse)
         {
@@ -170,12 +212,6 @@ public partial class Main : Node2D
             {
                 SetFlag("spoke_to_guardian", true);
                 _interface.ShowDialogue($"Guardian: { _profile.PlayerName }, Professor Alder stopped by earlier. He asked you to visit the laboratory when you're ready.");
-                return true;
-            }
-
-            if (IsNear(position, new Rect2(445, 430, 70, 60)))
-            {
-                TransitionTo(Mossmere, new Vector2(280, 365));
                 return true;
             }
 
@@ -194,12 +230,6 @@ public partial class Main : Node2D
                 return true;
             }
 
-            if (IsNear(position, new Rect2(445, 430, 70, 60)))
-            {
-                TransitionTo(Mossmere, new Vector2(605, 365));
-                return true;
-            }
-
             if (position.DistanceTo(new Vector2(300, 220)) <= 70)
             {
                 _interface.ShowDialogue("Research Terminal: Habitat observations are synchronized with the regional creature archive.");
@@ -208,11 +238,6 @@ public partial class Main : Node2D
         }
 
         return false;
-    }
-
-    private void TransitionTo(string mapId, Vector2 spawn)
-    {
-        _interface.PlayTransition(() => LoadMap(mapId, spawn));
     }
 
     private void LoadMap(string mapId, Vector2 spawn)
@@ -299,7 +324,7 @@ public partial class Main : Node2D
 
         DrawNpc(MaraPosition, new Color("#7a4fa3"));
         DrawString(ThemeDB.FallbackFont, MaraPosition + new Vector2(-54, -45), "MARA", HorizontalAlignment.Left, -1, 18, Colors.White);
-        DrawString(ThemeDB.FallbackFont, new Vector2(140, 355), "Press E at a door", HorizontalAlignment.Left, -1, 18, Colors.White);
+        DrawString(ThemeDB.FallbackFont, new Vector2(140, 355), "Walk into a doorway", HorizontalAlignment.Left, -1, 18, Colors.White);
     }
 
     private void DrawHouseInterior()

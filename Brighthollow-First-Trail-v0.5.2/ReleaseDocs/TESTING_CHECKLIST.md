@@ -1,4 +1,4 @@
-# Brighthollow v0.5.1 Testing Checklist
+# Brighthollow v0.5.2 Testing Checklist
 
 ## Name entry
 

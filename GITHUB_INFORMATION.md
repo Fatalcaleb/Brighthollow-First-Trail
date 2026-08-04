@@ -1,38 +1,31 @@
-# GitHub Information - Brighthollow v0.5.1
+# GitHub Information — v0.5.2
 
 ## Branch
-
-`feature/v0.5.1-name-suggestions`
+`feature/v0.5.2-automatic-doorways`
 
 ## Commit title
-
-`v0.5.1 - add name suggestions and project standards`
+`v0.5.2 - add automatic doorway transitions`
 
 ## Commit description
-
-Adds optional name suggestions while preserving fully custom player and rival naming.
+Adds classic walk-through doorway behavior for usable buildings.
 
 ### New
-- Added Suggest Name controls for player and rival
-- Added live character counters
-- Added the initial PROJECT_STANDARDS document
+- Enter the player house by walking into its doorway
+- Enter Professor Alder's laboratory by walking into its doorway
+- Leave interiors by walking into the exit doorway
+- Added a transition lock to prevent repeated activations
 
 ### Changed
-- Standardized player and rival names to a maximum of 16 characters
-- Updated release documentation and testing requirements
+- E and Space are no longer required for doors
+- E and Space remain the interaction controls for NPCs and objects
+- Updated doorway instructions and release documentation
 
 ### Compatibility
-- Existing v0.5.0 saves remain readable
-- No save schema change was required
-
-## Release title
-
-`Brighthollow: First Trail v0.5.1 - Identity Naming Update`
+- Existing v0.5.x saves remain compatible
+- No save schema changes
 
 ## Tag
+`v0.5.2`
 
-`v0.5.1`
-
-## Release notes
-
-This update improves the new-game identity screen. Players can type original names for both the trainer and rival or request optional suggestions. Live counters make the 16-character limit clear. The repository now also includes PROJECT_STANDARDS.md as the shared reference for naming, visual, coding, data, and release conventions.
+## Release title
+`Brighthollow: First Trail v0.5.2 — Automatic Doorways`

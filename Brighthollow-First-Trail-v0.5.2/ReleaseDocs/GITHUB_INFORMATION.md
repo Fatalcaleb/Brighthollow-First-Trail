@@ -1,12 +1,12 @@
-# GitHub Information - Brighthollow v0.5.1
+# GitHub Information - Brighthollow v0.5.2
 
 ## Branch
 
-`feature/v0.5.1-name-suggestions`
+`feature/v0.5.2-name-suggestions`
 
 ## Commit title
 
-`v0.5.1 - add name suggestions and project standards`
+`v0.5.2 - add name suggestions and project standards`
 
 ## Commit description
 
@@ -27,11 +27,11 @@ Adds optional name suggestions while preserving fully custom player and rival na
 
 ## Release title
 
-`Brighthollow: First Trail v0.5.1 - Identity Naming Update`
+`Brighthollow: First Trail v0.5.2 - Identity Naming Update`
 
 ## Tag
 
-`v0.5.1`
+`v0.5.2`
 
 ## Release notes
 

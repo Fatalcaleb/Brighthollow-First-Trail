@@ -1,8 +1,8 @@
-# Brighthollow: First Trail v0.5.1 — Identity
+# Brighthollow: First Trail v0.5.2 — Identity
 
 A Godot 4.7.1 .NET/C# prototype for an original, single-player monster-catching RPG.
 
-## New in v0.5.1
+## New in v0.5.2
 
 - Title screen
 - New Game and Continue
@@ -34,6 +34,11 @@ A Godot 4.7.1 .NET/C# prototype for an original, single-player monster-catching 
 All current visuals are original programmatic placeholders. The project has adopted a 32×32 pixel-art standard for future production assets.
 
 
-## v0.5.1 name improvements
+## v0.5.2 name improvements
 
 Player and rival names accept up to 16 characters. Players may type any valid name or use the Suggest Name buttons. Live counters show the current length.
+
+
+## v0.5.2 controls
+
+Walk directly into a usable doorway to enter or leave a building. Use E or Space for NPCs and objects.

@@ -1,4 +1,4 @@
-# Known Issues - v0.5.1
+# Known Issues - v0.5.2
 
 - Appearance presets remain temporary colored placeholders.
 - Name suggestions use a small built-in list and may repeat.

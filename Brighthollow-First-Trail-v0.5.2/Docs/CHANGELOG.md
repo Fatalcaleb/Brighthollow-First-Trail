@@ -1,6 +1,13 @@
+# v0.5.2 - Automatic Doorways
+
+- Enter usable buildings by walking into their doorways.
+- Exit interiors by walking into the exit doorway.
+- E/Space remain reserved for NPCs and other interactable objects.
+- Added transition locking to prevent repeated doorway activation.
+
 # Changelog
 
-## v0.5.1 - Identity Naming Update
+## v0.5.2 - Identity Naming Update
 
 - Added player-name suggestions
 - Added rival-name suggestions
