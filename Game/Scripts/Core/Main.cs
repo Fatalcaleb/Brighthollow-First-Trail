@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public partial class Main : Node2D
 {
@@ -11,6 +12,7 @@ public partial class Main : Node2D
     private static readonly Vector2 MaraPosition = new(930, 500);
     private static readonly Vector2 GuardianPosition = new(520, 300);
     private static readonly Vector2 AlderPosition = new(530, 235);
+    private static readonly Vector2 RivalPosition = new(735, 320);
 
     private readonly Dictionary<string, bool> _storyFlags = new();
     private readonly List<Node> _mapCollisionNodes = new();
@@ -19,6 +21,9 @@ public partial class Main : Node2D
     private PauseMenu _interface = null!;
     private string _currentMapId = Mossmere;
     private PlayerProfileData _profile = new();
+    private readonly List<CreatureDefinition> _creatureDefinitions = new();
+    private readonly List<CreatureInstanceData> _party = new();
+    private string _rivalStarterSpeciesId = string.Empty;
     private bool _sessionActive;
     private bool _transitionInProgress;
     private readonly List<WorldDoor> _mapDoors = new();
@@ -30,6 +35,9 @@ public partial class Main : Node2D
     public IReadOnlyDictionary<string, bool> StoryFlags => _storyFlags;
     public PlayerProfileData Profile => _profile;
     public bool SessionActive => _sessionActive;
+    public IReadOnlyList<CreatureInstanceData> Party => _party;
+    public string RivalStarterSpeciesId => _rivalStarterSpeciesId;
+    public Vector2 PlayerPosition => _player.GlobalPosition;
 
     public override void _Ready()
     {
@@ -40,8 +48,9 @@ public partial class Main : Node2D
         LoadMap(Mossmere, new Vector2(480, 370));
         _player.Visible = false;
 
-        var creatures = CreatureDatabase.LoadAll();
-        GD.Print($"Loaded {creatures.Count} creature definitions.");
+        _creatureDefinitions.Clear();
+        _creatureDefinitions.AddRange(CreatureDatabase.LoadAll());
+        GD.Print($"Loaded {_creatureDefinitions.Count} creature definitions.");
         GD.Print($"Brighthollow Milestone {BuildInfo.Version} started successfully.");
 
         Label instructions = GetNode<Label>("Interface/Instructions");
@@ -72,7 +81,9 @@ public partial class Main : Node2D
             PlayerName = _profile.PlayerName,
             RivalName = _profile.RivalName,
             AppearancePreset = _profile.AppearancePreset
-        }
+        },
+        Party = _party.ConvertAll(CloneCreatureInstance),
+        RivalStarterSpeciesId = _rivalStarterSpeciesId
     };
 
     public void BeginNewGame(PlayerProfileData profile)
@@ -84,6 +95,8 @@ public partial class Main : Node2D
             AppearancePreset = profile.AppearancePreset
         };
         _storyFlags.Clear();
+        _party.Clear();
+        _rivalStarterSpeciesId = string.Empty;
         SetFlag("arrived_in_mossmere", true);
         _sessionActive = true;
         _player.Visible = true;
@@ -102,6 +115,9 @@ public partial class Main : Node2D
         {
             _storyFlags[key] = value;
         }
+        _party.Clear();
+        foreach (CreatureInstanceData creature in save.Party) _party.Add(CloneCreatureInstance(creature));
+        _rivalStarterSpeciesId = save.RivalStarterSpeciesId;
 
         LoadMap(save.MapId, save.PlayerPosition);
     }
@@ -130,8 +146,76 @@ public partial class Main : Node2D
             return "Professor Alder's Laboratory\n\nYou reached the laboratory. Speak with Professor Alder near the research table.";
         }
 
-        return $"A New Trail\n\nProfessor Alder is preparing three young creatures for {_profile.PlayerName}. {_profile.RivalName} is also expected at the laboratory soon.";
+        if (!HasFlag("starter_chosen"))
+        {
+            return $"A New Trail\n\nProfessor Alder has prepared three young creatures for {_profile.PlayerName}. Speak with him again to choose a first companion.";
+        }
+
+        CreatureDefinition? starter = FindCreature(_party.Count > 0 ? _party[0].SpeciesId : string.Empty);
+        CreatureDefinition? rivalStarter = FindCreature(_rivalStarterSpeciesId);
+        return $"First Companion\n\n{starter?.Name ?? "Your starter"} has joined {_profile.PlayerName}'s party. {_profile.RivalName} chose {rivalStarter?.Name ?? "a companion"}. Professor Alder suggested getting acquainted before your first practice battle.";
     }
+
+    public IReadOnlyList<CreatureDefinition> GetStarterDefinitions()
+    {
+        string[] ids = { "spriglet", "cindercub", "ripplefin" };
+        List<CreatureDefinition> starters = new();
+        foreach (string id in ids)
+        {
+            CreatureDefinition? definition = FindCreature(id);
+            if (definition is not null) starters.Add(definition);
+        }
+        return starters;
+    }
+
+    public CreatureDefinition? FindCreature(string speciesId)
+        => _creatureDefinitions.Find(creature => creature.Id.Equals(speciesId, StringComparison.OrdinalIgnoreCase));
+
+    public bool ChooseStarter(string speciesId)
+    {
+        if (HasFlag("starter_chosen") || _party.Count >= 6) return false;
+        CreatureDefinition? definition = FindCreature(speciesId);
+        if (definition is null) return false;
+
+        int maxHp = CalculateStat(definition.BaseHp, 5, true);
+        CreatureInstanceData instance = new()
+        {
+            SpeciesId = definition.Id,
+            Level = 5,
+            Experience = 0,
+            CurrentHp = maxHp,
+            MoveIds = definition.LevelMoves.Where(move => move.Level <= 5).OrderBy(move => move.Level).Select(move => move.MoveId).TakeLast(4).ToList()
+        };
+        _party.Add(instance);
+        _rivalStarterSpeciesId = definition.Id switch
+        {
+            "spriglet" => "cindercub",
+            "cindercub" => "ripplefin",
+            _ => "spriglet"
+        };
+        SetFlag("starter_chosen", true);
+        SetFlag("rival_received_starter", true);
+        return true;
+    }
+
+    public int GetMaxHp(CreatureInstanceData instance)
+    {
+        CreatureDefinition? definition = FindCreature(instance.SpeciesId);
+        return definition is null ? Math.Max(1, instance.CurrentHp) : CalculateStat(definition.BaseHp, instance.Level, true);
+    }
+
+    private static int CalculateStat(int baseStat, int level, bool hp)
+        => hp ? ((2 * baseStat * level) / 100) + level + 10 : ((2 * baseStat * level) / 100) + 5;
+
+    private static CreatureInstanceData CloneCreatureInstance(CreatureInstanceData source) => new()
+    {
+        SpeciesId = source.SpeciesId,
+        Nickname = source.Nickname,
+        Level = source.Level,
+        Experience = source.Experience,
+        CurrentHp = source.CurrentHp,
+        MoveIds = new List<string>(source.MoveIds)
+    };
 
     public override void _Draw()
     {
@@ -231,8 +315,27 @@ public partial class Main : Node2D
         {
             if (position.DistanceTo(AlderPosition) <= 90)
             {
-                SetFlag("met_professor_alder", true);
-                _interface.ShowDialogue("Professor Alder: Excellent timing! I'm preparing three young creatures for field study. Come back when the starter habitats are ready.");
+                if (!HasFlag("met_professor_alder"))
+                {
+                    SetFlag("met_professor_alder", true);
+                    _interface.ShowDialogue($"Professor Alder: Excellent timing, {_profile.PlayerName}. I have three young creatures ready for field study. Speak with me once more when you're ready to choose.");
+                }
+                else if (!HasFlag("starter_chosen"))
+                {
+                    _interface.OpenStarterSelection(GetStarterDefinitions());
+                }
+                else
+                {
+                    CreatureDefinition? starter = FindCreature(_party[0].SpeciesId);
+                    _interface.ShowDialogue($"Professor Alder: Take good care of {starter?.Name ?? "your companion"}. {_profile.RivalName} chose a partner as well. Your first practice battle will be ready soon.");
+                }
+                return true;
+            }
+
+            if (HasFlag("rival_received_starter") && position.DistanceTo(RivalPosition) <= 85)
+            {
+                CreatureDefinition? rivalStarter = FindCreature(_rivalStarterSpeciesId);
+                _interface.ShowDialogue($"{_profile.RivalName}: I chose {rivalStarter?.Name ?? "my new companion"}. It looks like we'll be pushing each other from the start!");
                 return true;
             }
 
@@ -453,10 +556,22 @@ public partial class Main : Node2D
         DrawInteriorFloor(new Color("#b9d4db"), "PROFESSOR ALDER'S LAB");
         DrawRect(new Rect2(195, 150, 210, 95), new Color("#657786"));
         DrawString(ThemeDB.FallbackFont, new Vector2(235, 205), "RESEARCH TERMINAL", HorizontalAlignment.Left, -1, 18, Colors.White);
-        DrawRect(new Rect2(460, 145, 250, 90), new Color("#795d45"));
-        DrawString(ThemeDB.FallbackFont, new Vector2(535, 195), "HABITAT TABLE", HorizontalAlignment.Left, -1, 18, Colors.White);
+        DrawRect(new Rect2(440, 140, 300, 110), new Color("#795d45"));
+        DrawString(ThemeDB.FallbackFont, new Vector2(520, 165), "STARTER HABITATS", HorizontalAlignment.Left, -1, 18, Colors.White);
+        string playerStarterId = _party.Count > 0 ? _party[0].SpeciesId : string.Empty;
+        if (!playerStarterId.Equals("spriglet", StringComparison.OrdinalIgnoreCase) && !_rivalStarterSpeciesId.Equals("spriglet", StringComparison.OrdinalIgnoreCase))
+            DrawCircle(new Vector2(490, 210), 24, new Color("#68a94f"));
+        if (!playerStarterId.Equals("cindercub", StringComparison.OrdinalIgnoreCase) && !_rivalStarterSpeciesId.Equals("cindercub", StringComparison.OrdinalIgnoreCase))
+            DrawCircle(new Vector2(590, 210), 24, new Color("#dc6a3e"));
+        if (!playerStarterId.Equals("ripplefin", StringComparison.OrdinalIgnoreCase) && !_rivalStarterSpeciesId.Equals("ripplefin", StringComparison.OrdinalIgnoreCase))
+            DrawCircle(new Vector2(690, 210), 24, new Color("#4b9fc8"));
         DrawNpc(AlderPosition, new Color("#e8e8e8"));
         DrawString(ThemeDB.FallbackFont, AlderPosition + new Vector2(-82, -45), "PROFESSOR ALDER", HorizontalAlignment.Left, -1, 18, Colors.White);
+        if (HasFlag("rival_received_starter"))
+        {
+            DrawNpc(RivalPosition, new Color("#a75f78"));
+            DrawString(ThemeDB.FallbackFont, RivalPosition + new Vector2(-55, -45), _profile.RivalName.ToUpperInvariant(), HorizontalAlignment.Left, -1, 18, Colors.White);
+        }
         DrawDoor(new Vector2(480, 450));
     }
 

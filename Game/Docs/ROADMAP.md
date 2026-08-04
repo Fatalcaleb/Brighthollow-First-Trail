@@ -1,3 +1,16 @@
+# Roadmap
+
+## Completed: v0.7.0 — Starter and Party Foundation
+
+## Next planning milestone: Story Bible v0.1
+- Region identity and themes
+- Main cast and character arcs
+- Two villain organizations
+- Guardian mythology
+- Eight-arena route and chapter structure
+
+## Next gameplay milestone: v0.8.0 — First Rival Battle
+
 # Brighthollow Game Roadmap
 
 ## Completed

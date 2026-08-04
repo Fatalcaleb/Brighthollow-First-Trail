@@ -1,12 +1,14 @@
-# Brighthollow: First Trail v0.6.2 — Save Migration Compile Fix
+# Brighthollow: First Trail v0.7.1 — Visible Rival and Lab State
 
-This patch fixes the C# compilation error introduced in v0.6.1.
+This patch completes the visible aftermath of starter selection.
 
-## Fixed
-- `Environment` now explicitly resolves to `System.Environment` instead of conflicting with `Godot.Environment`.
-- Nullable reference types are enabled for the project, removing the nullable-annotation context warnings.
-- Version labels now report v0.6.2.
+## Highlights
 
-## Compatibility
-- Save format is unchanged.
-- Existing compatible saves remain readable.
+- The rival now appears in Professor Alder's laboratory after starter selection.
+- Rival dialogue confirms the selected companion.
+- The journal records both the player starter and rival starter.
+- The two selected creatures disappear from the starter habitats.
+- The unchosen third creature remains visible after map changes and save/load.
+- Professor Alder no longer reopens starter selection after a choice is made.
+- F3 opens a development debug information screen.
+- Godot project and runtime version labels now show v0.7.1.

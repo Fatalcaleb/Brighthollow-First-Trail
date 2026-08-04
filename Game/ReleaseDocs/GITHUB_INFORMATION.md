@@ -1,25 +1,31 @@
-# GitHub Information — v0.6.2
+# GitHub Information
 
 ## Branch
-`bugfix/v0.6.2-save-migration-compile-fix`
+`bugfix/v0.7.1-visible-rival-and-lab-state`
 
 ## Commit title
-`v0.6.2 - fix save migration compilation`
+`v0.7.1 - add visible rival, persistent starter table state, and debug screen`
 
 ## Commit description
-Fixes the C# build failure introduced by the legacy-save migration code.
+Adds the visible and persistent aftermath of starter selection.
+
+### Added
+- Rival NPC in Professor Alder's laboratory after starter selection
+- Rival dialogue confirming the selected starter
+- Journal text recording the rival's starter
+- Persistent starter-habitat state based on saved party and rival data
+- F3 development debug information screen
 
 ### Fixed
-- Qualified `Environment.GetEnvironmentVariable` as `System.Environment.GetEnvironmentVariable`
-- Enabled nullable reference types in the project
-- Updated runtime and project version labels to v0.6.2
+- Godot project name now reports v0.7.1
+- Professor Alder no longer allows starter selection after the player has chosen
 
 ### Compatibility
-- No save schema changes
-- Existing compatible saves remain readable
+- Existing v0.7.0 saves remain readable
+- No save schema change was required
 
 ## Release title
-`Brighthollow: First Trail v0.6.2 — Save Migration Compile Fix`
+`Brighthollow: First Trail v0.7.1 — Visible Rival and Lab State`
 
 ## Tag
-`v0.6.2`
+`v0.7.1`

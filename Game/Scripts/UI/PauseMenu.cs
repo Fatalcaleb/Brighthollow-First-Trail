@@ -1,5 +1,7 @@
 using Godot;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 public partial class PauseMenu : CanvasLayer
 {
@@ -8,10 +10,17 @@ public partial class PauseMenu : CanvasLayer
     private Control _menuRoot = null!;
     private Control _dialogueRoot = null!;
     private Control _journalRoot = null!;
+    private Control _partyRoot = null!;
+    private Control _starterRoot = null!;
+    private Control _debugRoot = null!;
     private ColorRect _fade = null!;
     private Label _statusLabel = null!;
     private Label _dialogueLabel = null!;
     private Label _journalLabel = null!;
+    private Label _partyLabel = null!;
+    private Label _starterDetailsLabel = null!;
+    private Label _starterStatusLabel = null!;
+    private Label _debugLabel = null!;
     private Label _locationLabel = null!;
     private Label _profileLabel = null!;
     private Label _titleMetadataLabel = null!;
@@ -29,6 +38,10 @@ public partial class PauseMenu : CanvasLayer
     private double _playTimeSeconds;
     private bool _dialogueOpen;
     private bool _journalOpen;
+    private bool _partyOpen;
+    private bool _starterOpen;
+    private bool _debugOpen;
+    private string _selectedStarterId = string.Empty;
     private bool _sessionStarted;
     private ulong _dialogueOpenedFrame;
 
@@ -53,6 +66,9 @@ public partial class PauseMenu : CanvasLayer
         BuildPauseMenu();
         BuildDialogueBox();
         BuildJournal();
+        BuildPartyScreen();
+        BuildStarterSelection();
+        BuildDebugScreen();
         BuildFade();
         BuildOverwriteDialog();
 
@@ -60,6 +76,9 @@ public partial class PauseMenu : CanvasLayer
         _menuRoot.Visible = false;
         _dialogueRoot.Visible = false;
         _journalRoot.Visible = false;
+        _partyRoot.Visible = false;
+        _starterRoot.Visible = false;
+        _debugRoot.Visible = false;
         _instructions.Visible = false;
         RefreshTitleMetadata();
         UpdateLocation("Mossmere");
@@ -78,9 +97,18 @@ public partial class PauseMenu : CanvasLayer
             return;
         }
 
+        if (Input.IsKeyPressed(Key.F3) && !_debugOpen)
+        {
+            OpenDebugScreen();
+            return;
+        }
+
         if (Input.IsActionJustPressed("pause_menu"))
         {
             if (_dialogueOpen) CloseDialogue();
+            else if (_debugOpen) CloseDebugScreen();
+            else if (_starterOpen) CloseStarterSelection();
+            else if (_partyOpen) CloseParty();
             else if (_journalOpen) CloseJournal();
             else ToggleMenu();
         }
@@ -98,11 +126,22 @@ public partial class PauseMenu : CanvasLayer
 
     public void ShowDialogue(string text)
     {
-        if (_menuRoot.Visible || !_sessionStarted) return;
+        if (_menuRoot.Visible || _starterOpen || !_sessionStarted) return;
         _dialogueLabel.Text = text + "\n\n[E / Space] Continue";
         _dialogueRoot.Visible = true;
         _dialogueOpen = true;
         _dialogueOpenedFrame = Engine.GetProcessFrames();
+        GetTree().Paused = true;
+    }
+
+    public void OpenStarterSelection(IReadOnlyList<CreatureDefinition> starters)
+    {
+        if (starters.Count == 0 || _starterOpen) return;
+        _selectedStarterId = starters[0].Id;
+        UpdateStarterDetails(_selectedStarterId);
+        _starterStatusLabel.Text = "Inspect all three companions, then confirm your choice.";
+        _starterRoot.Visible = true;
+        _starterOpen = true;
         GetTree().Paused = true;
     }
 
@@ -250,6 +289,37 @@ public partial class PauseMenu : CanvasLayer
         _playTimeSeconds = save.PlayTimeSeconds;
         _statusLabel.Text = $"Loaded {_main.GetLocationDisplayName()}.";
         ResumeGame();
+    }
+
+    private void OpenParty()
+    {
+        _menuRoot.Visible = false;
+        _partyLabel.Text = BuildPartyText();
+        _partyRoot.Visible = true;
+        _partyOpen = true;
+    }
+
+    private void CloseParty()
+    {
+        _partyRoot.Visible = false;
+        _partyOpen = false;
+        _menuRoot.Visible = true;
+    }
+
+    private string BuildPartyText()
+    {
+        if (_main.Party.Count == 0) return "Your party is empty. Professor Alder is preparing three possible companions.";
+        List<string> lines = new();
+        for (int index = 0; index < _main.Party.Count; index++)
+        {
+            CreatureInstanceData instance = _main.Party[index];
+            CreatureDefinition? definition = _main.FindCreature(instance.SpeciesId);
+            string name = string.IsNullOrWhiteSpace(instance.Nickname) ? definition?.Name ?? instance.SpeciesId : instance.Nickname;
+            string traits = definition is null ? "Unknown" : string.Join(", ", definition.PersonalityTraits);
+            string moves = instance.MoveIds.Count == 0 ? "None" : string.Join(", ", instance.MoveIds);
+            lines.Add($"{index + 1}. {name}  Lv.{instance.Level}\nHP {instance.CurrentHp} / {_main.GetMaxHp(instance)}\nType: {definition?.PrimaryType ?? "Unknown"}\nAbility: {definition?.Ability ?? "Unknown"}\nTraits: {traits}\nMoves: {moves}");
+        }
+        return string.Join("\n\n", lines);
     }
 
     private void OpenJournal()
@@ -409,7 +479,7 @@ public partial class PauseMenu : CanvasLayer
         shade.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         _menuRoot.AddChild(shade);
 
-        PanelContainer panel = CenterPanel(_menuRoot, new Vector2(420, 510));
+        PanelContainer panel = CenterPanel(_menuRoot, new Vector2(420, 560));
         VBoxContainer box = CreateVerticalBox(panel, 7);
 
         Label title = new() { Text = "BRIGHTHOLLOW", HorizontalAlignment = HorizontalAlignment.Center };
@@ -423,6 +493,7 @@ public partial class PauseMenu : CanvasLayer
         box.AddChild(_locationLabel);
 
         box.AddChild(CreateButton("Resume", ResumeGame));
+        box.AddChild(CreateButton("Party", OpenParty));
         box.AddChild(CreateButton("Journal", OpenJournal));
         box.AddChild(CreateButton("Save Game", SaveGame));
         _loadButton = CreateButton("Load Game", LoadGame);
@@ -464,6 +535,140 @@ public partial class PauseMenu : CanvasLayer
         _journalLabel.AddThemeFontSizeOverride("font_size", 20);
         box.AddChild(_journalLabel);
         box.AddChild(CreateButton("Back", CloseJournal));
+    }
+
+    private void BuildPartyScreen()
+    {
+        _partyRoot = FullScreenControl();
+        AddChild(_partyRoot);
+        ColorRect shade = new() { Color = new Color(0, 0, 0, 0.70f) };
+        shade.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        _partyRoot.AddChild(shade);
+        PanelContainer panel = CenterPanel(_partyRoot, new Vector2(700, 500));
+        VBoxContainer box = CreateVerticalBox(panel, 12);
+        Label title = new() { Text = "PARTY", HorizontalAlignment = HorizontalAlignment.Center };
+        title.AddThemeFontSizeOverride("font_size", 28);
+        box.AddChild(title);
+        ScrollContainer scroll = new() { CustomMinimumSize = new Vector2(640, 350) };
+        _partyLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(610, 340) };
+        _partyLabel.AddThemeFontSizeOverride("font_size", 18);
+        scroll.AddChild(_partyLabel);
+        box.AddChild(scroll);
+        box.AddChild(CreateButton("Back", CloseParty));
+    }
+
+    private void BuildStarterSelection()
+    {
+        _starterRoot = FullScreenControl();
+        AddChild(_starterRoot);
+        ColorRect background = new() { Color = new Color("#173248") };
+        background.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        _starterRoot.AddChild(background);
+        PanelContainer panel = CenterPanel(_starterRoot, new Vector2(780, 560));
+        VBoxContainer box = CreateVerticalBox(panel, 12);
+        Label title = new() { Text = "CHOOSE YOUR FIRST COMPANION", HorizontalAlignment = HorizontalAlignment.Center };
+        title.AddThemeFontSizeOverride("font_size", 28);
+        box.AddChild(title);
+        box.AddChild(new Label { Text = "Professor Alder: Each one has a different temperament and strength. Take your time.", HorizontalAlignment = HorizontalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart });
+        HBoxContainer choices = new() { Alignment = BoxContainer.AlignmentMode.Center };
+        choices.AddThemeConstantOverride("separation", 12);
+        choices.AddChild(CreateButton("Spriglet\nGrove", () => SelectStarter("spriglet"), 210, 72));
+        choices.AddChild(CreateButton("Cindercub\nFlame", () => SelectStarter("cindercub"), 210, 72));
+        choices.AddChild(CreateButton("Ripplefin\nTide", () => SelectStarter("ripplefin"), 210, 72));
+        box.AddChild(choices);
+        _starterDetailsLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(700, 220) };
+        _starterDetailsLabel.AddThemeFontSizeOverride("font_size", 19);
+        box.AddChild(_starterDetailsLabel);
+        _starterStatusLabel = new Label { HorizontalAlignment = HorizontalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        box.AddChild(_starterStatusLabel);
+        HBoxContainer buttons = new() { Alignment = BoxContainer.AlignmentMode.Center };
+        buttons.AddThemeConstantOverride("separation", 12);
+        buttons.AddChild(CreateButton("Not Yet", CloseStarterSelection, 180, 42));
+        buttons.AddChild(CreateButton("Choose This Companion", ConfirmStarter, 260, 42));
+        box.AddChild(buttons);
+    }
+
+    private void SelectStarter(string speciesId)
+    {
+        _selectedStarterId = speciesId;
+        UpdateStarterDetails(speciesId);
+        _starterStatusLabel.Text = "Selected for review. Confirm when you are sure.";
+    }
+
+    private void UpdateStarterDetails(string speciesId)
+    {
+        CreatureDefinition? creature = _main.FindCreature(speciesId);
+        if (creature is null)
+        {
+            _starterDetailsLabel.Text = "Creature data could not be loaded.";
+            return;
+        }
+        string traits = string.Join(", ", creature.PersonalityTraits);
+        _starterDetailsLabel.Text = $"{creature.Name} — {creature.PrimaryType}\n\n{creature.Description}\n\nAbility: {creature.Ability}\nTraits: {traits}\nBase Stats: HP {creature.BaseHp}  ATK {creature.BaseAttack}  DEF {creature.BaseDefense}  SP.ATK {creature.BaseSpecialAttack}  SP.DEF {creature.BaseSpecialDefense}  SPD {creature.BaseSpeed}";
+    }
+
+    private void ConfirmStarter()
+    {
+        CreatureDefinition? selected = _main.FindCreature(_selectedStarterId);
+        if (selected is null || !_main.ChooseStarter(_selectedStarterId))
+        {
+            _starterStatusLabel.Text = "The selection could not be completed.";
+            return;
+        }
+        CreatureDefinition? rival = _main.FindCreature(_main.RivalStarterSpeciesId);
+        _starterRoot.Visible = false;
+        _starterOpen = false;
+        GetTree().Paused = false;
+        ShowDialogue($"Professor Alder: {selected.Name} has chosen to travel with you! {_main.Profile.RivalName} will study alongside {rival?.Name ?? "another companion"}. You can now view your partner from the Party menu.");
+    }
+
+    private void CloseStarterSelection()
+    {
+        _starterRoot.Visible = false;
+        _starterOpen = false;
+        GetTree().Paused = false;
+    }
+
+    private void BuildDebugScreen()
+    {
+        _debugRoot = FullScreenControl();
+        AddChild(_debugRoot);
+        ColorRect shade = new() { Color = new Color(0, 0, 0, 0.82f) };
+        shade.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        _debugRoot.AddChild(shade);
+        PanelContainer panel = CenterPanel(_debugRoot, new Vector2(720, 500));
+        VBoxContainer box = CreateVerticalBox(panel, 12);
+        Label title = new() { Text = "DEVELOPER DEBUG INFORMATION", HorizontalAlignment = HorizontalAlignment.Center };
+        title.AddThemeFontSizeOverride("font_size", 26);
+        box.AddChild(title);
+        ScrollContainer scroll = new() { CustomMinimumSize = new Vector2(660, 360) };
+        _debugLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(630, 340) };
+        _debugLabel.AddThemeFontSizeOverride("font_size", 17);
+        scroll.AddChild(_debugLabel);
+        box.AddChild(scroll);
+        box.AddChild(CreateButton("Close", CloseDebugScreen, 200, 42));
+    }
+
+    private void OpenDebugScreen()
+    {
+        if (!_sessionStarted) return;
+        _menuRoot.Visible = false;
+        CreatureDefinition? playerStarter = _main.Party.Count > 0 ? _main.FindCreature(_main.Party[0].SpeciesId) : null;
+        CreatureDefinition? rivalStarter = _main.FindCreature(_main.RivalStarterSpeciesId);
+        string flags = _main.StoryFlags.Count == 0
+            ? "None"
+            : string.Join("\n", _main.StoryFlags.Where(pair => pair.Value).Select(pair => $"• {pair.Key}"));
+        _debugLabel.Text = $"Game: Brighthollow: First Trail\nVersion: {BuildInfo.DisplayVersion}\nDebug Build: Yes\n\nCurrent Map: {_main.CurrentMapId}\nPlayer Coordinates: X={_main.PlayerPosition.X:0.0}, Y={_main.PlayerPosition.Y:0.0}\nPlayer: {_main.Profile.PlayerName}\nRival: {_main.Profile.RivalName}\nPlayer Starter: {playerStarter?.Name ?? "None"} [{playerStarter?.Id ?? "—"}]\nRival Starter: {rivalStarter?.Name ?? "None"} [{rivalStarter?.Id ?? "—"}]\nParty Count: {_main.Party.Count}\n\nStory Flags\n{flags}";
+        _debugRoot.Visible = true;
+        _debugOpen = true;
+        GetTree().Paused = true;
+    }
+
+    private void CloseDebugScreen()
+    {
+        _debugRoot.Visible = false;
+        _debugOpen = false;
+        GetTree().Paused = false;
     }
 
     private void BuildFade()

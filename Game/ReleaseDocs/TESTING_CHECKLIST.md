@@ -1,9 +1,33 @@
-# v0.6.2 Testing Checklist
+# v0.7.1 Testing Checklist
 
-- Build the project and confirm there are no red C# compilation errors.
-- Confirm the previous nullable-context warnings are gone.
-- Launch the game and confirm v0.6.2 appears on title and pause screens.
-- Confirm New Game and Continue behave normally.
-- Test entering and leaving HOME and ALDER LAB.
-- Save, close the game, reopen, and load.
-- Check Godot Output for any save migration message or exception.
+## Version
+- Godot project name shows v0.7.1.
+- Title screen and pause menu show v0.7.1.
+
+## Starter outcomes
+Test with a new save for each row:
+
+| Player chooses | Rival receives | Remains visible |
+|---|---|---|
+| Spriglet | Cindercub | Ripplefin |
+| Cindercub | Ripplefin | Spriglet |
+| Ripplefin | Spriglet | Cindercub |
+
+For each test:
+- Select the starter.
+- Confirm the player starter and rival starter disappear from the table.
+- Confirm only the third starter remains.
+- Confirm the rival NPC appears in the lab.
+- Speak to the rival and confirm the dialogue names the correct starter.
+- Speak to Professor Alder and confirm starter selection cannot reopen.
+- Open the Journal and confirm the rival name and starter are listed.
+- Save in the lab, close the game completely, reopen, and Continue.
+- Confirm the rival, journal information, and remaining starter are restored.
+
+## Debug screen
+- Press F3 during gameplay.
+- Confirm game version, map, coordinates, player/rival names, starter IDs, party count, and story flags display.
+- Press Esc to close it.
+
+## Regression
+- Movement, doors, dialogue, party, journal, save/load, and title-screen Continue still work.

@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.7.1] - 2026-08-04
+
+### Added
+- Visible rival NPC and starter-confirmation dialogue.
+- Persistent starter habitat state.
+- Rival starter information in the journal.
+- F3 development debug screen.
+
+### Fixed
+- Godot project version now matches the release.
+
+# Changelog
+
+## [0.7.0] - 2026-08-04
+
+### Added
+- Starter selection, party instances, party UI, rival starter assignment, and save persistence.
+
+
 ## v0.6.2 — Save Migration Compile Fix
 
 ### Fixed

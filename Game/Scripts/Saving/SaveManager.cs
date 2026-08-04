@@ -11,6 +11,17 @@ public sealed class PlayerProfileData
     public int AppearancePreset { get; set; }
 }
 
+
+public sealed class CreatureInstanceData
+{
+    public string SpeciesId { get; set; } = string.Empty;
+    public string Nickname { get; set; } = string.Empty;
+    public int Level { get; set; } = 5;
+    public int Experience { get; set; }
+    public int CurrentHp { get; set; }
+    public List<string> MoveIds { get; set; } = new();
+}
+
 public sealed class GameSaveData
 {
     public Vector2 PlayerPosition { get; set; }
@@ -19,6 +30,8 @@ public sealed class GameSaveData
     public Dictionary<string, bool> StoryFlags { get; set; } = new();
     public PlayerProfileData Profile { get; set; } = new();
     public string SavedAt { get; set; } = string.Empty;
+    public List<CreatureInstanceData> Party { get; set; } = new();
+    public string RivalStarterSpeciesId { get; set; } = string.Empty;
 }
 
 public static class SaveManager
@@ -43,6 +56,22 @@ public static class SaveManager
             ["appearance_preset"] = save.Profile.AppearancePreset
         };
 
+        Godot.Collections.Array party = new();
+        foreach (CreatureInstanceData creature in save.Party)
+        {
+            Godot.Collections.Array moves = new();
+            foreach (string moveId in creature.MoveIds) moves.Add(moveId);
+            party.Add(new Godot.Collections.Dictionary
+            {
+                ["species_id"] = creature.SpeciesId,
+                ["nickname"] = creature.Nickname,
+                ["level"] = creature.Level,
+                ["experience"] = creature.Experience,
+                ["current_hp"] = creature.CurrentHp,
+                ["moves"] = moves
+            });
+        }
+
         Godot.Collections.Dictionary data = new()
         {
             ["version"] = BuildInfo.Version,
@@ -52,6 +81,8 @@ public static class SaveManager
             ["play_time_seconds"] = save.PlayTimeSeconds,
             ["story_flags"] = flags,
             ["profile"] = profile,
+            ["party"] = party,
+            ["rival_starter_species_id"] = save.RivalStarterSpeciesId,
             ["saved_at"] = Time.GetDatetimeStringFromSystem()
         };
 
@@ -114,6 +145,30 @@ public static class SaveManager
             foreach (Variant key in flags.Keys)
             {
                 save.StoryFlags[key.AsString()] = flags[key].AsBool();
+            }
+        }
+
+        save.RivalStarterSpeciesId = data.ContainsKey("rival_starter_species_id")
+            ? data["rival_starter_species_id"].AsString()
+            : string.Empty;
+
+        if (data.ContainsKey("party") && data["party"].VariantType == Variant.Type.Array)
+        {
+            foreach (Variant entry in data["party"].AsGodotArray())
+            {
+                if (entry.VariantType != Variant.Type.Dictionary) continue;
+                Godot.Collections.Dictionary item = entry.AsGodotDictionary();
+                CreatureInstanceData creature = new()
+                {
+                    SpeciesId = item.ContainsKey("species_id") ? item["species_id"].AsString() : string.Empty,
+                    Nickname = item.ContainsKey("nickname") ? item["nickname"].AsString() : string.Empty,
+                    Level = item.ContainsKey("level") ? item["level"].AsInt32() : 5,
+                    Experience = item.ContainsKey("experience") ? item["experience"].AsInt32() : 0,
+                    CurrentHp = item.ContainsKey("current_hp") ? item["current_hp"].AsInt32() : 1
+                };
+                if (item.ContainsKey("moves") && item["moves"].VariantType == Variant.Type.Array)
+                    foreach (Variant move in item["moves"].AsGodotArray()) creature.MoveIds.Add(move.AsString());
+                if (!string.IsNullOrWhiteSpace(creature.SpeciesId)) save.Party.Add(creature);
             }
         }
 
