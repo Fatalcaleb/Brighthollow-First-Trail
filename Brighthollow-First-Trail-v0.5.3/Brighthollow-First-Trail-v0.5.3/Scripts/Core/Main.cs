@@ -21,6 +21,7 @@ public partial class Main : Node2D
     private PlayerProfileData _profile = new();
     private bool _sessionActive;
     private bool _doorTransitionInProgress;
+    private bool _doorRequiresClearance;
 
     public string CurrentMapId => _currentMapId;
     public IReadOnlyDictionary<string, bool> StoryFlags => _storyFlags;
@@ -36,13 +37,22 @@ public partial class Main : Node2D
 
         var creatures = CreatureDatabase.LoadAll();
         GD.Print($"Loaded {creatures.Count} creature definitions.");
-        GD.Print("Brighthollow Milestone 0.5.2 started successfully.");
+        GD.Print("Brighthollow Milestone 0.5.3 started successfully.");
     }
 
     public override void _PhysicsProcess(double delta)
     {
         if (!_sessionActive || GetTree().Paused || _doorTransitionInProgress)
         {
+            return;
+        }
+
+        if (_doorRequiresClearance)
+        {
+            if (!IsInsideAnyDoorZone(_player.GlobalPosition))
+            {
+                _doorRequiresClearance = false;
+            }
             return;
         }
 
@@ -170,11 +180,11 @@ public partial class Main : Node2D
         }
         else if (_currentMapId == PlayerHouse && IsNear(position, new Rect2(445, 430, 70, 60)))
         {
-            BeginDoorTransition(Mossmere, new Vector2(280, 365));
+            BeginDoorTransition(Mossmere, new Vector2(280, 410));
         }
         else if (_currentMapId == AlderLab && IsNear(position, new Rect2(445, 430, 70, 60)))
         {
-            BeginDoorTransition(Mossmere, new Vector2(605, 365));
+            BeginDoorTransition(Mossmere, new Vector2(605, 410));
         }
     }
 
@@ -189,8 +199,21 @@ public partial class Main : Node2D
         _interface.PlayTransition(() =>
         {
             LoadMap(mapId, spawn);
+            _doorRequiresClearance = true;
             _doorTransitionInProgress = false;
         });
+    }
+
+
+    private bool IsInsideAnyDoorZone(Vector2 position)
+    {
+        return _currentMapId switch
+        {
+            Mossmere => IsNear(position, new Rect2(250, 270, 60, 65))
+                || IsNear(position, new Rect2(575, 260, 60, 70)),
+            PlayerHouse or AlderLab => IsNear(position, new Rect2(445, 430, 70, 60)),
+            _ => false
+        };
     }
 
     private bool TryHandleInteraction()

@@ -1,6 +1,22 @@
 # Changelog
 
-## v0.5.1 - Identity Naming Update
+## v0.5.3 — Doorway Loop Hotfix
+
+- Fixed repeated automatic doorway transitions when exiting interiors.
+- Moved outside spawn points beyond doorway activation zones.
+- Added a clearance requirement before a doorway can trigger again.
+- No save compatibility changes.
+
+# v0.5.3 - Automatic Doorways
+
+- Enter usable buildings by walking into their doorways.
+- Exit interiors by walking into the exit doorway.
+- E/Space remain reserved for NPCs and other interactable objects.
+- Added transition locking to prevent repeated doorway activation.
+
+# Changelog
+
+## v0.5.3 - Identity Naming Update
 
 - Added player-name suggestions
 - Added rival-name suggestions
