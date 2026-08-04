@@ -1,13 +1,13 @@
-# Brighthollow: First Trail v0.6.0 — World Transition Framework
+# Brighthollow: First Trail v0.6.1
 
-This release replaces the prototype doorway code with a reusable transition system built on Godot scenes, physics areas, and named spawn points.
+## Save continuity
 
-## Highlights
+Future versions now use the fixed `Brighthollow First Trail` Godot user-data directory. On first launch, the game searches older Brighthollow version folders for the newest compatible save. When found, it copies that save to the new location and preserves the original.
 
-- Walk naturally into visible doorways.
-- Door activation is based on the player's ground footprint.
-- Every destination uses a named spawn point.
-- The house and Professor Alder's laboratory now share the same reusable system.
-- Transition loops and magic coordinate offsets have been removed.
+## Door exit placement
 
-This framework is designed to support future houses, shops, arenas, caves, ladders, ferries, secret passages, and other map transitions without writing special code for each one.
+Leaving HOME or ALDER LAB now places the player roughly one character step below the doorway rather than farther down the path.
+
+## Roadmap
+
+The next feature milestone is v0.7.0: Journal History and Quest Log Foundation.

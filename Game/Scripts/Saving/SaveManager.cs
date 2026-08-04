@@ -1,5 +1,8 @@
 using Godot;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 
 public sealed class PlayerProfileData
 {
@@ -21,9 +24,12 @@ public sealed class GameSaveData
 public static class SaveManager
 {
     private const string SavePath = "user://save_slot_1.json";
+    private static bool _migrationChecked;
 
     public static bool Save(GameSaveData save)
     {
+        EnsureLegacySaveMigration();
+
         Godot.Collections.Dictionary flags = new();
         foreach ((string key, bool value) in save.StoryFlags)
         {
@@ -39,7 +45,7 @@ public static class SaveManager
 
         Godot.Collections.Dictionary data = new()
         {
-            ["version"] = "0.5.0",
+            ["version"] = BuildInfo.Version,
             ["map_id"] = save.MapId,
             ["player_x"] = save.PlayerPosition.X,
             ["player_y"] = save.PlayerPosition.Y,
@@ -62,6 +68,7 @@ public static class SaveManager
 
     public static bool TryLoad(out GameSaveData save)
     {
+        EnsureLegacySaveMigration();
         save = new GameSaveData();
         if (!FileAccess.FileExists(SavePath))
         {
@@ -114,5 +121,90 @@ public static class SaveManager
     }
 
     public static bool TryReadMetadata(out GameSaveData metadata) => TryLoad(out metadata);
-    public static bool HasSave() => FileAccess.FileExists(SavePath);
+
+    public static bool HasSave()
+    {
+        EnsureLegacySaveMigration();
+        return FileAccess.FileExists(SavePath);
+    }
+
+    /// <summary>
+    /// Moves one compatible save from an older version-specific Godot user folder into
+    /// the fixed Brighthollow user directory. The original file is never deleted.
+    /// </summary>
+    private static void EnsureLegacySaveMigration()
+    {
+        if (_migrationChecked)
+        {
+            return;
+        }
+
+        _migrationChecked = true;
+        string currentSavePath = ProjectSettings.GlobalizePath(SavePath);
+        if (System.IO.File.Exists(currentSavePath))
+        {
+            return;
+        }
+
+        try
+        {
+            string? appData = Environment.GetEnvironmentVariable("APPDATA");
+            if (string.IsNullOrWhiteSpace(appData))
+            {
+                return;
+            }
+
+            string legacyRoot = System.IO.Path.Combine(appData, "Godot", "app_userdata");
+            if (!System.IO.Directory.Exists(legacyRoot))
+            {
+                return;
+            }
+
+            string currentDirectory = System.IO.Path.GetDirectoryName(currentSavePath) ?? string.Empty;
+            var candidates = System.IO.Directory
+                .EnumerateDirectories(legacyRoot)
+                .Where(directory => !string.Equals(directory, currentDirectory, StringComparison.OrdinalIgnoreCase))
+                .Where(directory =>
+                {
+                    string name = System.IO.Path.GetFileName(directory);
+                    return name.Contains("Brighthollow", StringComparison.OrdinalIgnoreCase)
+                        && name.Contains("First Trail", StringComparison.OrdinalIgnoreCase);
+                })
+                .Select(directory => System.IO.Path.Combine(directory, "save_slot_1.json"))
+                .Where(System.IO.File.Exists)
+                .Where(IsCompatibleLegacySave)
+                .OrderByDescending(System.IO.File.GetLastWriteTimeUtc)
+                .ToList();
+
+            if (candidates.Count == 0)
+            {
+                return;
+            }
+
+            System.IO.Directory.CreateDirectory(currentDirectory);
+            System.IO.File.Copy(candidates[0], currentSavePath, overwrite: false);
+            GD.Print($"Migrated a compatible legacy save from: {candidates[0]}");
+            GD.Print($"The original save was preserved. New save location: {currentSavePath}");
+        }
+        catch (Exception exception)
+        {
+            GD.PushWarning($"Legacy save migration was skipped: {exception.Message}");
+        }
+    }
+
+    private static bool IsCompatibleLegacySave(string path)
+    {
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(System.IO.File.ReadAllText(path));
+            JsonElement root = document.RootElement;
+            return root.ValueKind == JsonValueKind.Object
+                && root.TryGetProperty("player_x", out _)
+                && root.TryGetProperty("player_y", out _);
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

@@ -1,5 +1,6 @@
-# Known Issues — v0.6.0
+# Known Issues — v0.6.1
 
-- Maps are still drawn with temporary geometric placeholder art.
-- Only automatic transition doors are exposed in gameplay; manual and locked-door configurations are architectural foundations for later milestones.
-- The current game does not yet include a visual debug overlay for transition areas.
+- Legacy migration can only discover saves that remain in Godot's standard Windows app_userdata directory.
+- If several compatible legacy saves exist, the newest modified save is copied. Originals are never removed.
+- Journal history is planned for v0.7.0; the current Journal still shows only the active objective.
+- Visuals remain placeholders.

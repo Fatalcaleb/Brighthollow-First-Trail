@@ -4,7 +4,9 @@
 config_version=5
 
 [application]
-config/name="Brighthollow: First Trail v0.6.0"
+config/name="Brighthollow: First Trail v0.6.1"
+config/use_custom_user_dir=true
+config/custom_user_dir_name="Brighthollow First Trail"
 run/main_scene="res://Scenes/Main.tscn"
 config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
 

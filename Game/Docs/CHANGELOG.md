@@ -1,20 +1,17 @@
 # Changelog
 
-## v0.6.0 — World Transition Framework
+## v0.6.1 — Save Continuity and Spawn Placement
 
 ### Added
-- Reusable `TransitionDoor.tscn` scene.
-- Reusable `SpawnPoint.tscn` scene.
-- Generic `WorldDoor` destination metadata and transition events.
-- Named map spawn points with facing directions.
-- Reusable building collision generation with visible doorway openings.
+- Fixed custom Godot user-data directory for future releases
+- One-time migration search for compatible saves from older version-specific project folders
+- Non-destructive migration that preserves the original save
+- v0.7.0 journal-history milestone in the roadmap
 
 ### Changed
-- Automatic transitions now use Godot `Area2D` body detection.
-- Player collision is now a foot-level footprint rather than a torso-sized rectangle.
-- House and laboratory transitions use the same generic framework.
-- Map transitions temporarily disable player movement during fades.
+- HOME and ALDER LAB exterior spawn points now place the player closer to the door
+- Save files record the current BuildInfo version
 
-### Removed
-- Hardcoded per-frame door rectangle polling.
-- Manual foot-probe coordinate calculations.
+## v0.6.0 — World Transition Framework
+- Added reusable Area2D doors and named spawn points
+- Replaced hardcoded doorway polling

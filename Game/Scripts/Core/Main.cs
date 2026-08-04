@@ -318,8 +318,8 @@ public partial class Main : Node2D
         if (_currentMapId == Mossmere)
         {
             CreateSpawnPoint("start", new Vector2(480, 370), Vector2.Down);
-            CreateSpawnPoint("home_exit", new Vector2(280, 350), Vector2.Down);
-            CreateSpawnPoint("lab_exit", new Vector2(600, 350), Vector2.Down);
+            CreateSpawnPoint("home_exit", new Vector2(280, 312), Vector2.Down);
+            CreateSpawnPoint("lab_exit", new Vector2(600, 312), Vector2.Down);
 
             CreateDoor("mossmere_home", new Vector2(280, 292), new Vector2(44, 16), PlayerHouse, "entrance");
             CreateDoor("mossmere_alder_lab", new Vector2(600, 292), new Vector2(44, 16), AlderLab, "entrance");

@@ -1,22 +1,22 @@
-# Brighthollow: First Trail v0.6.0
+# Brighthollow: First Trail v0.6.1
 
-**Codename:** World Transition Framework
+A Godot 4.7.1 .NET/C# prototype for an original monster-catching RPG.
 
-This milestone replaces hardcoded doorway rectangles with reusable Godot scenes and named spawn points.
+## This release
 
-## Highlights
-
-- Reusable `TransitionDoor.tscn`
-- Reusable `SpawnPoint.tscn`
-- `Area2D`-based automatic transitions
-- Named destination spawn points
-- Foot-level player collision
-- Building collision openings that match visible doors
-- Centralized transition locking and fade handling
-- Existing v0.5.x saves remain readable
+- Uses a fixed Godot user-data directory for all future versions
+- Attempts a one-time, non-destructive migration of the newest compatible legacy save
+- Moves exterior building spawn points closer to their door thresholds
+- Adds the journal-history milestone to the roadmap
 
 ## Run
 
 1. Open `project.godot` in Godot 4.7.1 .NET.
 2. Select **Build > Build Project**.
-3. Run the main scene.
+3. Press F5.
+
+## Controls
+
+- Move: WASD or arrow keys
+- Interact: E or Space
+- Menu: Esc

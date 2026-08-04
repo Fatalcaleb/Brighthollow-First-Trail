@@ -1,5 +1,6 @@
-# Known Issues — v0.6.0
+# Known Issues — v0.6.1
 
-- Placeholder geometric graphics remain.
-- Manual, locked, and story-gated door modes are not yet represented by visible gameplay examples.
-- Transition areas do not yet have an optional developer visualization.
+- Legacy migration can only discover saves that remain in Godot's standard Windows app_userdata directory.
+- If several compatible legacy saves exist, the newest modified save is copied. Originals are never removed.
+- Journal history is planned for v0.7.0; the current Journal still shows only the active objective.
+- Visuals remain placeholders.

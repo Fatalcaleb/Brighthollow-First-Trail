@@ -1,41 +1,36 @@
-# GitHub Information — v0.6.0
+# GitHub Information — v0.6.1
 
 ## Branch
 
-`feature/v0.6.0-world-transition-framework`
+`bugfix/v0.6.1-save-continuity-and-spawn-placement`
 
 ## Commit title
 
-`v0.6.0 - add reusable world transition framework`
+`v0.6.1 - add stable save location and improve exit spawn placement`
 
 ## Commit description
 
-Replaces hardcoded doorway checks with reusable Godot transition scenes and named spawn points.
+Adds a fixed save-data location and non-destructive migration support while improving building exit placement.
 
 ### Added
-- Reusable TransitionDoor scene using Area2D
-- Reusable named SpawnPoint scene
-- Generic destination map and spawn metadata
-- Centralized transition handling and movement locking
-- Building collision generation with actual doorway openings
+- Fixed custom Godot user-data directory shared by future versions
+- One-time search for compatible saves in older Brighthollow app_userdata folders
+- Validation before a legacy save is copied
+- Preservation of the original legacy save
+- Journal History milestone in the roadmap
 
 ### Changed
-- Player collision now represents the character's feet
-- HOME and ALDER LAB now use the same generic transition system
-- Spawn facing direction is applied consistently
-
-### Removed
-- Per-frame hardcoded doorway rectangle polling
-- Manual foot-probe offsets
+- HOME and ALDER LAB exterior spawns now sit closer to their visible doorways
+- Save version metadata now comes from BuildInfo
 
 ### Compatibility
-- Existing v0.5.x saves remain compatible
-- No save schema changes
+- Existing compatible save JSON remains readable
+- No existing save is deleted or overwritten during migration
 
 ## Release title
 
-`Brighthollow: First Trail v0.6.0 — World Transition Framework`
+`Brighthollow: First Trail v0.6.1 — Save Continuity and Spawn Placement`
 
 ## Tag
 
-`v0.6.0`
+`v0.6.1`
