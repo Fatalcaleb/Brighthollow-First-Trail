@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.5.5
+
+- Doorway activation now uses a foot-level probe.
+- Removed the oversized 45-pixel expansion around doorway triggers.
+- Centralized runtime version labels through `BuildInfo`.
+- Updated application, menu, milestone, and startup version displays.
+
 ## v0.5.4 — Doorway Trigger Precision Hotfix
 
 - Reduced exterior doorway activation zones to match the visible door width.

@@ -37,7 +37,10 @@ public partial class Main : Node2D
 
         var creatures = CreatureDatabase.LoadAll();
         GD.Print($"Loaded {creatures.Count} creature definitions.");
-        GD.Print("Brighthollow Milestone 0.5.4 started successfully.");
+        GD.Print($"Brighthollow Milestone {BuildInfo.Version} started successfully.");
+
+        Label instructions = GetNode<Label>("Interface/Instructions");
+        instructions.Text = $"{BuildInfo.MilestoneLabel}\nMove: WASD / Arrows   Menu: Esc   Interact: E or Space";
     }
 
     public override void _PhysicsProcess(double delta)
@@ -49,7 +52,7 @@ public partial class Main : Node2D
 
         if (_doorRequiresClearance)
         {
-            if (!IsInsideAnyDoorZone(_player.GlobalPosition))
+            if (!IsInsideAnyDoorZone(GetPlayerDoorProbePosition()))
             {
                 _doorRequiresClearance = false;
             }
@@ -162,7 +165,7 @@ public partial class Main : Node2D
 
     private void TryHandleAutomaticDoor()
     {
-        Vector2 position = _player.GlobalPosition;
+        Vector2 position = GetPlayerDoorProbePosition();
 
         if (_currentMapId == Mossmere)
         {
@@ -320,7 +323,14 @@ public partial class Main : Node2D
 
     private void SetFlag(string id, bool value) => _storyFlags[id] = value;
     private bool HasFlag(string id) => _storyFlags.TryGetValue(id, out bool value) && value;
-    private static bool IsNear(Vector2 point, Rect2 zone) => zone.Grow(45).HasPoint(point);
+    private Vector2 GetPlayerDoorProbePosition()
+    {
+        // The player origin is around the torso. Doorways should activate only
+        // when the character's feet cross the visible threshold.
+        return _player.GlobalPosition + new Vector2(0, 30);
+    }
+
+    private static bool IsNear(Vector2 point, Rect2 zone) => zone.HasPoint(point);
 
     private static bool IsInteractPress(InputEvent inputEvent)
     {

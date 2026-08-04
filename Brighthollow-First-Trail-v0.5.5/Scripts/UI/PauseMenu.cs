@@ -308,7 +308,7 @@ public partial class PauseMenu : CanvasLayer
             CustomMinimumSize = new Vector2(420, 92)
         };
         box.AddChild(_titleMetadataLabel);
-        box.AddChild(new Label { Text = "v0.5.1 — Identity", HorizontalAlignment = HorizontalAlignment.Center });
+        box.AddChild(new Label { Text = BuildInfo.DisplayVersion, HorizontalAlignment = HorizontalAlignment.Center });
     }
 
     private void BuildSetupScreen()

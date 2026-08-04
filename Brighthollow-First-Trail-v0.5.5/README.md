@@ -1,4 +1,4 @@
-# Brighthollow: First Trail v0.5.4 — Identity
+# Brighthollow: First Trail v0.5.5
 
 A Godot 4.7.1 .NET/C# prototype for an original, single-player monster-catching RPG.
 
